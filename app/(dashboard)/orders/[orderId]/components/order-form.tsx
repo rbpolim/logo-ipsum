@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
 
 import { Button } from '@/components/ui/button'
-import { Heading } from '@/components/ui/heading'
+import { Heading } from '@/components/heading'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import {
