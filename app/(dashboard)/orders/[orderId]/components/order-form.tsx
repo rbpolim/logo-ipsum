@@ -1,16 +1,25 @@
 "use client"
 
 import { Order } from '@prisma/client'
-import { useRouter } from 'next/navigation'
-import { ChevronLeftCircle } from 'lucide-react'
+import { useParams, useRouter } from 'next/navigation'
+import { CalendarIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
+import { toast } from 'react-hot-toast'
+import { format } from 'date-fns'
 
+import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/heading'
+import { Calendar } from '@/components/ui/calendar'
 import { Separator } from '@/components/ui/separator'
-import { Input } from '@/components/ui/input'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover'
 import {
   Form,
   FormControl,
@@ -19,12 +28,12 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { toast } from 'react-hot-toast'
+import axios from 'axios'
 
 const formSchema = z.object({
   companyName: z.string().min(1),
   companyUnit: z.string().min(1),
-  dateStart: z.string().min(1),
+  dateStart: z.date(),
   requester: z.string().min(1),
   location: z.string().min(1),
   purpose: z.string().min(1),
@@ -39,6 +48,7 @@ type OrderFormProps = {
 export default function OrderForm({
   initialData
 }: OrderFormProps) {
+  const params = useParams();
   const router = useRouter()
 
   const title = initialData ? 'Edit Order' : 'Create Order'
@@ -51,7 +61,7 @@ export default function OrderForm({
     defaultValues: initialData || {
       companyName: '',
       companyUnit: '',
-      dateStart: '',
+      dateStart: new Date(),
       requester: '',
       location: '',
       purpose: '',
@@ -59,25 +69,27 @@ export default function OrderForm({
   })
 
   async function onSubmit(data: OrderFormValues) {
-    console.log(data)
-    toast.success(toastMessage)
+    try {
+      if (initialData) {
+        await axios.put(`/api/orders/${params.orderId}`, data)
+      } else {
+        await axios.post('/api/orders', data)
+      }
+
+      router.refresh();
+      router.push(`/orders`);
+      toast.success(toastMessage)
+    } catch (error) {
+      toast.error('Something went wrong')
+    }
   }
 
   return (
     <>
-      <div className="flex items-center gap-8">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => router.back()}
-        >
-          <ChevronLeftCircle className="h-10 w-10" />
-        </Button>
-        <Heading
-          title={title}
-          description={description}
-        />
-      </div>
+      <Heading
+        title={title}
+        description={description}
+      />
       <Separator />
       <Form {...form}>
         <form
@@ -150,8 +162,48 @@ export default function OrderForm({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="dateStart"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onDayClick={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-
           <Button type="submit" className='ml-auto'>
             {action}
           </Button>
