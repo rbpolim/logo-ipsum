@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma"
+
 import OrderForm from "./components/order-form"
 
 const OrderPage = async ({
@@ -12,10 +13,12 @@ const OrderPage = async ({
     },
   })
 
+  const companies = await prisma.company.findMany()
+
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <OrderForm initialData={order} />
+        <OrderForm initialData={order} companies={companies} />
       </div>
     </div>
   )
