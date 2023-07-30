@@ -10,7 +10,7 @@ export async function POST(
     const { userId } = auth()
     const body = await req.json()
 
-    const { name, cnpj } = body
+    const { name, cnpj, unit } = body
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -24,10 +24,15 @@ export async function POST(
       return new NextResponse('CNPJ is required', { status: 400 })
     }
 
+    if (!unit) {
+      return new NextResponse('Unit is required', { status: 400 })
+    }
+
     const company = await prisma.company.create({
       data: {
         name,
         cnpj,
+        unit
       }
     })
 

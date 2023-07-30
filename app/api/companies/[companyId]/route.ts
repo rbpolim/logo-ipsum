@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs'
 import prisma from "@/lib/prisma"
 
 export async function GET(
+  req: Request,
   { params }: { params: { companyId: string } }
 ) {
   try {
@@ -38,7 +39,7 @@ export async function PUT(
     const { userId } = auth()
     const body = await req.json()
 
-    const { name, cnpj } = body
+    const { name, cnpj, unit } = body
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -50,6 +51,10 @@ export async function PUT(
 
     if (!cnpj) {
       return new NextResponse('CNPJ is required', { status: 400 })
+    }
+
+    if (!unit) {
+      return new NextResponse('Unit is required', { status: 400 })
     }
 
     if (!params.companyId) {
@@ -74,9 +79,12 @@ export async function PUT(
 }
 
 export async function DELETE(
+  req: Request,
   { params }: { params: { companyId: string } }
 ) {
   try {
+    console.log(params.companyId)
+
     const { userId } = auth()
 
     if (!userId) {
