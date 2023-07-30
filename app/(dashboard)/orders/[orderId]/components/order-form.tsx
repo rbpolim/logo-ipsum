@@ -1,15 +1,17 @@
 "use client"
 
-import { Order } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
+import { Company, Order } from '@prisma/client'
 import { CalendarIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
+import axios from 'axios'
 
 import { cn } from '@/lib/utils'
+
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/heading'
@@ -28,30 +30,40 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import axios from 'axios'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useState } from 'react'
 
 const formSchema = z.object({
-  companyName: z.string().min(1),
-  companyUnit: z.string().min(1),
-  dateStart: z.date(),
+  companyId: z.string().min(1),
   requester: z.string().min(1),
   location: z.string().min(1),
   purpose: z.string().min(1),
+  dateStart: z.date(),
 })
 
 type OrderFormValues = z.infer<typeof formSchema>
 
 type OrderFormProps = {
   initialData: Order | null
+  companies: Company[]
 }
 
 export default function OrderForm({
-  initialData
+  initialData,
+  companies
 }: OrderFormProps) {
   const params = useParams();
   const router = useRouter()
 
-  const title = initialData ? 'Edit Order' : 'Create Order'
+  const [loading, isLoading] = useState(false)
+
+  const title = initialData ? 'Edit order' : 'Create order'
   const description = initialData ? 'Edit an existing order.' : 'Create a new order.'
   const action = initialData ? 'Edit order' : 'Create order'
   const toastMessage = initialData ? 'Order edited' : 'Order created'
@@ -59,9 +71,8 @@ export default function OrderForm({
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      companyName: '',
-      companyUnit: '',
-      dateStart: new Date(),
+      companyId: '',
+      dateStart: undefined,
       requester: '',
       location: '',
       purpose: '',
@@ -70,6 +81,8 @@ export default function OrderForm({
 
   async function onSubmit(data: OrderFormValues) {
     try {
+      isLoading(true)
+
       if (initialData) {
         await axios.put(`/api/orders/${params.orderId}`, data)
       } else {
@@ -81,6 +94,8 @@ export default function OrderForm({
       toast.success(toastMessage)
     } catch (error) {
       toast.error('Something went wrong')
+    } finally {
+      isLoading(false)
     }
   }
 
@@ -99,26 +114,28 @@ export default function OrderForm({
           <div className='md:grid md:grid-cols-3 gap-8'>
             <FormField
               control={form.control}
-              name="companyName"
+              name="companyId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Company name</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Company name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="companyUnit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company unit</FormLabel>
-                  <FormControl>
-                    <Input placeholder='Company unit' {...field} />
-                  </FormControl>
+                  <FormLabel>Company</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={initialData ? initialData.companyId : undefined}
+                    disabled={loading}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a company" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {companies.map((company) => (
+                        <SelectItem key={company.id} value={company.id}>
+                          {company.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -130,7 +147,7 @@ export default function OrderForm({
                 <FormItem>
                   <FormLabel>Requester</FormLabel>
                   <FormControl>
-                    <Input placeholder='Requester name' {...field} />
+                    <Input disabled={loading} placeholder='Requester name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,7 +160,7 @@ export default function OrderForm({
                 <FormItem>
                   <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input placeholder='Location name' {...field} />
+                    <Input disabled={loading} placeholder='Location name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -156,7 +173,7 @@ export default function OrderForm({
                 <FormItem>
                   <FormLabel>Purpose</FormLabel>
                   <FormControl>
-                    <Input placeholder='Purpose of the order' {...field} />
+                    <Input disabled={loading} placeholder='Purpose of the order' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -169,7 +186,7 @@ export default function OrderForm({
                 <FormItem className="flex flex-col">
                   <FormLabel>Date</FormLabel>
                   <Popover>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger disabled={loading} asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
@@ -189,13 +206,13 @@ export default function OrderForm({
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
+                        initialFocus
                         mode="single"
                         selected={field.value}
                         onDayClick={field.onChange}
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
@@ -204,7 +221,7 @@ export default function OrderForm({
               )}
             />
           </div>
-          <Button type="submit" className='ml-auto'>
+          <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
         </form>
