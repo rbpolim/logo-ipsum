@@ -1,16 +1,20 @@
 "use client"
 
+import axios from 'axios'
+import { Trash } from 'lucide-react'
+import { useState } from 'react'
 import { Company } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from 'zod'
 import { toast } from 'react-hot-toast'
+import { z } from 'zod'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/heading'
 import { Separator } from '@/components/ui/separator'
+import { AlertModal } from '@/components/modals/alert-modal'
 import {
   Form,
   FormControl,
@@ -19,12 +23,11 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import axios from 'axios'
-import { Trash } from 'lucide-react'
 
 const formSchema = z.object({
   name: z.string().min(1),
   cnpj: z.string().min(1),
+  unit: z.string().min(1),
 })
 
 type CompanyFormValues = z.infer<typeof formSchema>
@@ -36,8 +39,11 @@ type CompanyFormProps = {
 export function CompanyForm({
   initialData
 }: CompanyFormProps) {
-  const params = useParams();
+  const params = useParams() as { companyId: string }
   const router = useRouter()
+
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const title = initialData ? 'Edit company' : 'Create company'
   const description = initialData ? 'Edit an existing company.' : 'Create a new company.'
@@ -49,11 +55,14 @@ export function CompanyForm({
     defaultValues: initialData || {
       name: '',
       cnpj: '',
+      unit: '',
     },
   })
 
-  async function onSubmit(data: CompanyFormValues) {
+  const onSubmit = async (data: CompanyFormValues) => {
     try {
+      setLoading(true)
+
       if (initialData) {
         await axios.put(`/api/companies/${params.companyId}`, data)
       } else {
@@ -65,23 +74,45 @@ export function CompanyForm({
       toast.success(toastMessage)
     } catch (error) {
       toast.error('Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onDelete = async () => {
+    try {
+      setLoading(true)
+      await axios.delete(`/api/companies/${params.companyId}`);
+      router.refresh()
+      router.push('/companies');
+      toast.success('Company deleted.');
+    } catch (error: any) {
+      toast.error('Make sure you removed all orders using this company first.');
+    } finally {
+      setLoading(false);
+      setOpen(false);
     }
   }
 
   return (
     <>
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onDelete}
+        loading={loading}
+      />
       <div className="flex items-center justify-between">
-
         <Heading
           title={title}
           description={description}
         />
         {initialData && (
           <Button
-            // disabled={loading}
-            // onClick={() => setOpen(true)}
-            variant="destructive"
             size="sm"
+            disabled={loading}
+            onClick={() => setOpen(true)}
+            variant="destructive"
           >
             <Trash className="h-4 w-4" />
           </Button>
@@ -93,7 +124,7 @@ export function CompanyForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='space-y-8 w-full'
         >
-          <div className='md:grid md:grid-cols-3 gap-8'>
+          <div className='grid md:grid-cols-3 gap-8'>
             <FormField
               control={form.control}
               name="name"
@@ -101,7 +132,7 @@ export function CompanyForm({
                 <FormItem>
                   <FormLabel>Company name</FormLabel>
                   <FormControl>
-                    <Input placeholder='Company name' {...field} />
+                    <Input disabled={loading} placeholder='Company name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -114,14 +145,27 @@ export function CompanyForm({
                 <FormItem>
                   <FormLabel>Company CNPJ</FormLabel>
                   <FormControl>
-                    <Input placeholder='Company CNPJ' {...field} />
+                    <Input disabled={loading} placeholder='Company CNPJ' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="unit"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company unit</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder='Company unit' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <Button type="submit" className='ml-auto'>
+          <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
         </form>

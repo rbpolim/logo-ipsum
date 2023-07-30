@@ -11,6 +11,7 @@ const CompaniesPage = async () => {
     id: company.id,
     name: company.name,
     cnpj: company.cnpj,
+    unit: company.unit,
     createdAt: format(company.createdAt, 'MMMM dd, yyyy'),
   }))
 
