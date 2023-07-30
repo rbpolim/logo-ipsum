@@ -19,9 +19,9 @@ export function MainNav({
       active: pathname.startsWith('/companies'),
     },
     {
-      href: `/units`,
-      label: 'Units',
-      active: pathname.startsWith('/units'),
+      href: `/orders`,
+      label: 'Orders',
+      active: pathname.startsWith('/orders'),
     },
   ]
 
