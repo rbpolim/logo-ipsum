@@ -6,15 +6,24 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
+import { DataTable } from "@/components/data-table";
 
-export function OrderClient() {
+import { OrderColumn, columns } from "./columns";
+
+type OrdersClientProps = {
+  data: OrderColumn[]
+}
+
+export function OrdersClient({
+  data
+}: OrdersClientProps) {
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-center justify-between">
         <Heading
-          title={`Orders (${0})`}
+          title={`Orders (${data.length})`}
           description="Manage orders for your store"
         />
         <Button onClick={() => router.push(`/orders/new`)}>
@@ -22,7 +31,7 @@ export function OrderClient() {
         </Button>
       </div>
       <Separator />
-      {/* <DataTable searchKey="label" columns={columns} data={data} /> */}
+      <DataTable searchKey="number" columns={columns} data={data} />
     </>
   )
 }
