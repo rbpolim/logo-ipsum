@@ -8,6 +8,7 @@ export type CompanyColumn = {
   id: string
   name: string
   cnpj: string
+  unit: string
   createdAt: string
 }
 
@@ -19,6 +20,10 @@ export const columns: ColumnDef<CompanyColumn>[] = [
   {
     accessorKey: "cnpj",
     header: "CNPJ",
+  },
+  {
+    accessorKey: "unit",
+    header: "Unit",
   },
   {
     accessorKey: "createdAt",
