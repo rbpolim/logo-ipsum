@@ -91,6 +91,7 @@ export async function PUT(
 }
 
 export async function DELETE(
+  req: Request,
   { params }: { params: { orderId: string } }
 ) {
   try {
@@ -104,13 +105,16 @@ export async function DELETE(
       return new NextResponse('Order ID is required', { status: 400 })
     }
 
-    await prisma.company.delete({
+    await prisma.order.update({
       where: {
         id: params.orderId,
       },
+      data: {
+        status: 'CANCELED'
+      }
     })
 
-    return NextResponse.json({ message: 'Order deleted' })
+    return NextResponse.json({ message: 'Order cancelled' })
   } catch (error) {
     console.error('[ORDER_DELETE]', error)
     return new NextResponse('Internal Error', { status: 500 })
