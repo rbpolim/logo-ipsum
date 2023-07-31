@@ -1,8 +1,9 @@
 "use client"
 
 import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Company, Order } from '@prisma/client'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, Trash } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
@@ -17,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Heading } from '@/components/heading'
 import { Calendar } from '@/components/ui/calendar'
 import { Separator } from '@/components/ui/separator'
+import { AlertModal } from '@/components/modals/alert-modal'
 import {
   Popover,
   PopoverContent,
@@ -37,7 +39,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useState } from 'react'
 
 const formSchema = z.object({
   companyId: z.string().min(1),
@@ -58,10 +59,11 @@ export default function OrderForm({
   initialData,
   companies
 }: OrderFormProps) {
-  const params = useParams();
   const router = useRouter()
+  const params = useParams() as { orderId: string }
 
-  const [loading, isLoading] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const title = initialData ? 'Edit order' : 'Create order'
   const description = initialData ? 'Edit an existing order.' : 'Create a new order.'
@@ -79,9 +81,9 @@ export default function OrderForm({
     },
   })
 
-  async function onSubmit(data: OrderFormValues) {
+  const onSubmit = async (data: OrderFormValues) => {
     try {
-      isLoading(true)
+      setLoading(true)
 
       if (initialData) {
         await axios.put(`/api/orders/${params.orderId}`, data)
@@ -95,16 +97,49 @@ export default function OrderForm({
     } catch (error) {
       toast.error('Something went wrong')
     } finally {
-      isLoading(false)
+      setLoading(false)
+    }
+  }
+
+  const onCancel = async () => {
+    try {
+      setLoading(true)
+      await axios.delete(`/api/orders/${params.orderId}`)
+      router.refresh()
+      router.push('/orders')
+      toast.success('Order cancelled')
+    } catch (error: any) {
+      toast.error('Make sure you removed all orders using this company first.');
+    } finally {
+      setLoading(false);
+      setOpen(false);
     }
   }
 
   return (
     <>
-      <Heading
-        title={title}
-        description={description}
+      <AlertModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        onConfirm={onCancel}
+        loading={loading}
       />
+      <div className="flex items-center justify-between">
+        <Heading
+          title={title}
+          description={description}
+        />
+        {initialData && (
+          <Button
+            size="sm"
+            disabled={loading}
+            onClick={() => setOpen(true)}
+            variant="destructive"
+          >
+            <Trash className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
       <Separator />
       <Form {...form}>
         <form
