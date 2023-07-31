@@ -14,14 +14,14 @@ export function MainNav({
 
   const routes = [
     {
-      href: `/companies`,
-      label: 'Companies',
-      active: pathname.startsWith('/companies'),
-    },
-    {
       href: `/orders`,
       label: 'Orders',
       active: pathname.startsWith('/orders'),
+    },
+    {
+      href: `/companies`,
+      label: 'Companies',
+      active: pathname.startsWith('/companies'),
     },
   ]
 
