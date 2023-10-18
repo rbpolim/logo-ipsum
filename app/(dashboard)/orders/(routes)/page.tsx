@@ -18,7 +18,7 @@ export default async function OrdersPage() {
     company: order.company.name,
     unit: order.company.unit,
     status: order.status,
-    dateStart: format(order.startDate, 'MMMM dd, yyyy'),
+    startDate: format(order.startDate, 'MMMM dd, yyyy'),
   }))
 
   return (
