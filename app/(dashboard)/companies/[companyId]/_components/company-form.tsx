@@ -25,9 +25,8 @@ import {
 } from '@/components/ui/form'
 
 const formSchema = z.object({
-  name: z.string().min(1),
-  cnpj: z.string().min(1),
-  unit: z.string().min(1),
+  name: z.string().trim().min(1),
+  unit: z.string().trim().min(1),
 })
 
 type CompanyFormValues = z.infer<typeof formSchema>
@@ -54,7 +53,6 @@ export function CompanyForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: '',
-      cnpj: '',
       unit: '',
     },
   })
@@ -114,7 +112,7 @@ export function CompanyForm({
             onClick={() => setOpen(true)}
             variant="destructive"
           >
-            <Trash className="h-4 w-4" />
+            <Trash className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -122,9 +120,9 @@ export function CompanyForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-8 w-full'
+          className='w-full space-y-8'
         >
-          <div className='grid md:grid-cols-3 gap-8'>
+          <div className='grid gap-8 md:grid-cols-3'>
             <FormField
               control={form.control}
               name="name"
@@ -133,19 +131,6 @@ export function CompanyForm({
                   <FormLabel>Company name</FormLabel>
                   <FormControl>
                     <Input disabled={loading} placeholder='Company name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="cnpj"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company CNPJ</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder='Company CNPJ' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

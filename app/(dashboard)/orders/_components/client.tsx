@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Heading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/data-table";
 
-import { OrderColumn, columns } from "./columns";
+import { OrderColumn, columns } from "../_components/columns";
 
 type OrdersClientProps = {
   data: OrderColumn[]
@@ -27,7 +27,7 @@ export function OrdersClient({
           description="Manage orders for your store"
         />
         <Button onClick={() => router.push(`/orders/new`)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New
+          <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div>
       <Separator />

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma"
 
-import OrderForm from "./components/order-form"
+import OrderForm from "../_components/order-form"
 
 const OrderPage = async ({
   params
@@ -17,7 +17,7 @@ const OrderPage = async ({
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 p-8 pt-6 space-y-4">
         <OrderForm initialData={order} companies={companies} />
       </div>
     </div>

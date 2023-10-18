@@ -42,10 +42,10 @@ import {
 
 const formSchema = z.object({
   companyId: z.string().min(1),
-  requester: z.string().min(1),
-  location: z.string().min(1),
-  purpose: z.string().min(1),
-  dateStart: z.date(),
+  requester: z.string().trim().min(1),
+  location: z.string().trim().min(1),
+  purpose: z.string().trim().min(1),
+  startDate: z.date(),
 })
 
 type OrderFormValues = z.infer<typeof formSchema>
@@ -74,7 +74,7 @@ export default function OrderForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       companyId: '',
-      dateStart: undefined,
+      startDate: undefined,
       requester: '',
       location: '',
       purpose: '',
@@ -136,7 +136,7 @@ export default function OrderForm({
             onClick={() => setOpen(true)}
             variant="destructive"
           >
-            <Trash className="h-4 w-4" />
+            <Trash className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -144,9 +144,9 @@ export default function OrderForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-8 w-full'
+          className='w-full space-y-8'
         >
-          <div className='md:grid md:grid-cols-3 gap-8'>
+          <div className='gap-8 md:grid md:grid-cols-3'>
             <FormField
               control={form.control}
               name="companyId"
@@ -216,7 +216,7 @@ export default function OrderForm({
             />
             <FormField
               control={form.control}
-              name="dateStart"
+              name="startDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date</FormLabel>
@@ -235,7 +235,7 @@ export default function OrderForm({
                           ) : (
                             <span>Pick a date</span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          <CalendarIcon className="w-4 h-4 ml-auto opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>

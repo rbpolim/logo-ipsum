@@ -4,7 +4,7 @@ import { useState } from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
-import { Edit, MoreHorizontal, Trash } from "lucide-react"
+import { Edit, File, MoreHorizontal, Trash } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -64,6 +64,10 @@ export const CellAction = ({
           <DropdownMenuLabel>
             Actions
           </DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => router.push(`/orders/${data.id}/reports`)}>
+            <File className="mr-2 w-4 h-4" />
+            Reports
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push(`/orders/${data.id}`)}>
             <Edit className="mr-2 w-4 h-4" />
             Update

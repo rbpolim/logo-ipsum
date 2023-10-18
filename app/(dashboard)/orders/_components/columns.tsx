@@ -11,7 +11,7 @@ export type OrderColumn = {
   company: string
   unit: string
   status: string
-  dateStart: string
+  startDate: string
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [
@@ -33,7 +33,7 @@ export const columns: ColumnDef<OrderColumn>[] = [
     cell: ({ row }) => <Badge>{row.original.status}</Badge>
   },
   {
-    accessorKey: "dateStart",
+    accessorKey: "startDate",
     header: "Date",
   },
   {

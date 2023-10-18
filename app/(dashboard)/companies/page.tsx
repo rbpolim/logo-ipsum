@@ -1,8 +1,8 @@
 import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 
-import { CompaniesClient } from "./components/client"
-import { CompanyColumn } from './components/columns'
+import { CompaniesClient } from "./_components/client"
+import { CompanyColumn } from './_components/columns'
 
 const CompaniesPage = async () => {
   const companies = await prisma.company.findMany()
@@ -10,14 +10,13 @@ const CompaniesPage = async () => {
   const formattedCompanies: CompanyColumn[] = companies.map((company) => ({
     id: company.id,
     name: company.name,
-    cnpj: company.cnpj,
     unit: company.unit,
     createdAt: format(company.createdAt, 'MMMM dd, yyyy'),
   }))
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 p-8 pt-6 space-y-4">
         <CompaniesClient data={formattedCompanies} />
       </div>
     </div>

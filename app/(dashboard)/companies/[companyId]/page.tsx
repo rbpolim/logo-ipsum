@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma'
 
-import { CompanyForm } from './components/company-form'
+import { CompanyForm } from './_components/company-form'
 
 const CompanyPage = async ({
   params
@@ -15,7 +15,7 @@ const CompanyPage = async ({
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 p-8 pt-6 space-y-4">
         <CompanyForm initialData={company} />
       </div>
     </div>
