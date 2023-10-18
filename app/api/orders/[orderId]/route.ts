@@ -39,7 +39,7 @@ export async function PUT(
 
     const body = await req.json()
 
-    const { companyId, requester, location, purpose, dateStart } = body
+    const { companyId, requester, location, purpose, startDate } = body
 
     if (!params.orderId) {
       return new NextResponse('Order ID is required', { status: 400 })
@@ -65,8 +65,8 @@ export async function PUT(
       return new NextResponse('Purpose is required', { status: 400 })
     }
 
-    if (!dateStart) {
-      return new NextResponse('Date start is required', { status: 400 })
+    if (!startDate) {
+      return new NextResponse('Start date is required', { status: 400 })
     }
 
     const order = await prisma.order.update({
@@ -78,7 +78,7 @@ export async function PUT(
         requester,
         location,
         purpose,
-        dateStart,
+        startDate,
         userId
       }
     })

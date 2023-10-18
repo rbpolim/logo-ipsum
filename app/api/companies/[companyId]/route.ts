@@ -39,7 +39,7 @@ export async function PUT(
     const { userId } = auth()
     const body = await req.json()
 
-    const { name, cnpj, unit } = body
+    const { name, unit } = body
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -47,10 +47,6 @@ export async function PUT(
 
     if (!name) {
       return new NextResponse('Name is required', { status: 400 })
-    }
-
-    if (!cnpj) {
-      return new NextResponse('CNPJ is required', { status: 400 })
     }
 
     if (!unit) {
@@ -67,7 +63,7 @@ export async function PUT(
       },
       data: {
         name,
-        cnpj,
+        unit,
       }
     })
 

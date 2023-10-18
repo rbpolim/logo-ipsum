@@ -3,39 +3,107 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Order {
-  id        String       @id @default(cuid())
-  number    Int          @unique @default(autoincrement())
-  dateStart DateTime
-  dateEnd   DateTime?
-  requester String
-  purpose   String
-  location  String
-  status    ORDER_STATUS @default(IN_PROGRESS)
-  userId    String
+  id              String       @id @default(cuid())
+  number          Int          @unique @default(autoincrement())
+  userId          String
+  startDate       DateTime
+  expectedEndDate DateTime?
+  endDate         DateTime?
+  requester       String
+  purpose         String
+  location        String
+  status          ORDER_STATUS @default(IN_PROGRESS)
+
   companyId String
-  company   Company      @relation(fields: [companyId], references: [id])
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  company   Company @relation(fields: [companyId], references: [id])
+
+  reports Report[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([companyId])
 }
 
 model Company {
-  id        String   @id @default(cuid())
-  name      String
-  cnpj      String   @unique
-  unit      String
-  orders    Order[]
+  id   String @id @default(cuid())
+  name String
+  unit String
+
+  orders Order[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model Report {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  service   Service?
+  equipment Equipment?
+  gallery   Gallery[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+model Service {
+  id             String @id @default(cuid())
+  diagnostic     String
+  description    String
+  procedure      String
+  recommendation String
+  additionalInfo String
+
+  reportId String @unique
+  report   Report @relation(fields: [reportId], references: [id])
+}
+
+model Equipment {
+  id          String @id @default(cuid())
+  location    String
+  name        String
+  model       String
+  serial      String
+  tag         String
+  type        String
+  description String
+
+  reportId String @unique
+  report   Report @relation(fields: [reportId], references: [id])
+}
+
+model Gallery {
+  id       String @id @default(cuid())
+  imageUrl String
+  comment  String
+
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id])
+
+  @@index([reportId])
+}
+
 enum ORDER_STATUS {
   IN_PROGRESS
-  WAITING_SURVEY_APPROVAL
+  WAITING_APPROVAL_POLL
+  FINISHED
+  CANCELED
+}
+
+enum REPORT_STATUS {
+  IN_PROGRESS
   FINISHED
   CANCELED
 }
