@@ -5,7 +5,7 @@ import { useParams, usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils"
 
-export function MainNav({
+export function NavRoutes({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
