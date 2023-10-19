@@ -32,9 +32,10 @@ model Order {
 }
 
 model Company {
-  id   String @id @default(cuid())
-  name String
-  unit String
+  id     String @id @default(cuid())
+  userId String
+  name   String
+  unit   String
 
   orders Order[]
 
@@ -43,14 +44,18 @@ model Company {
 }
 
 model Report {
-  id String @id @default(cuid())
+  id     String        @id @default(cuid())
+  number Int           @unique @default(autoincrement())
+  userId String
+  status REPORT_STATUS @default(IN_PROGRESS)
 
   orderId String
   order   Order  @relation(fields: [orderId], references: [id])
 
-  service   Service?
-  equipment Equipment?
-  gallery   Gallery[]
+  schedule  ReportSchedule?
+  equipment ReportEquipment?
+  service   ReportService?
+  gallery   ReportGallery[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -58,19 +63,19 @@ model Report {
   @@index([orderId])
 }
 
-model Service {
-  id             String @id @default(cuid())
-  diagnostic     String
-  description    String
-  procedure      String
-  recommendation String
-  additionalInfo String
+model ReportSchedule {
+  id        String    @id @default(cuid())
+  date      DateTime
+  startHour DateTime
+  endHour   DateTime?
 
   reportId String @unique
   report   Report @relation(fields: [reportId], references: [id])
+
+  @@index([reportId])
 }
 
-model Equipment {
+model ReportEquipment {
   id          String @id @default(cuid())
   location    String
   name        String
@@ -84,7 +89,40 @@ model Equipment {
   report   Report @relation(fields: [reportId], references: [id])
 }
 
-model Gallery {
+model ReportService {
+  id             String @id @default(cuid())
+  diagnostic     String
+  recommendation String
+  additionalInfo String
+
+  procedures   ServiceProcedure[]
+  descriptions ServiceDescription[]
+
+  reportId String @unique
+  report   Report @relation(fields: [reportId], references: [id])
+}
+
+model ServiceProcedure {
+  id          String @id @default(cuid())
+  description String
+
+  serviceId String
+  service   ReportService @relation(fields: [serviceId], references: [id])
+
+  @@index([serviceId])
+}
+
+model ServiceDescription {
+  id          String @id @default(cuid())
+  description String
+
+  serviceId String
+  service   ReportService @relation(fields: [serviceId], references: [id])
+
+  @@index([serviceId])
+}
+
+model ReportGallery {
   id       String @id @default(cuid())
   imageUrl String
   comment  String
