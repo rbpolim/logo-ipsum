@@ -64,10 +64,10 @@ model Report {
 }
 
 model ReportSchedule {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   date      DateTime
-  startHour DateTime
-  endHour   DateTime?
+  startTime String
+  endTime   String?
 
   reportId String @unique
   report   Report @relation(fields: [reportId], references: [id])
