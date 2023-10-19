@@ -26,6 +26,7 @@ export async function POST(
 
     const company = await prisma.company.create({
       data: {
+        userId,
         name,
         unit
       }
