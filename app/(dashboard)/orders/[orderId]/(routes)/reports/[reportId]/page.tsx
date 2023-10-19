@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma'
 
-import { ReportForm } from './components/report-form'
-import { ReportFormTest } from './components/report-form-test'
+import { ReportForm } from './_components/report-form'
+// import { ReportFormTest } from './_components/report-form-test'
 
 const ReportPage = async ({
   params
@@ -20,9 +20,9 @@ const ReportPage = async ({
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
-        {/* <ReportForm initialData={report} /> */}
-        <ReportFormTest />
+      <div className="flex-1 p-8 pt-6 space-y-4">
+        <ReportForm initialData={report} />
+        {/* <ReportFormTest /> */}
       </div>
     </div>
   )

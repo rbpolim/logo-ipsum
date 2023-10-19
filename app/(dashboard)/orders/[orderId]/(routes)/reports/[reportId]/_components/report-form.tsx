@@ -3,7 +3,7 @@
 import axios from 'axios'
 import { CalendarIcon, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { Equipment, Report, Service } from '@prisma/client'
+import { Report, ReportEquipment, ReportService } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -35,24 +35,24 @@ const formSchema = z.object({
   date: z.date(),
   hourStart: z.string().min(1),
   equipment: z.object({
-    name: z.string().min(1),
-    location: z.string().min(1),
-    type: z.string().min(1),
-    description: z.string().min(1),
-    model: z.string().min(1),
-    serial: z.string().min(1),
-    tag: z.string().min(1),
+    name: z.string().trim().min(1),
+    location: z.string().trim().min(1),
+    type: z.string().trim().min(1),
+    description: z.string().trim().min(1),
+    model: z.string().trim().min(1),
+    serial: z.string().trim().min(1),
+    tag: z.string().trim().min(1),
   }),
   service: z.object({
-    diagnostic: z.string().min(1),
-    description: z.string().min(1),
-    procedure: z.string().min(1),
-    recommendation: z.string().min(1),
-    additionalInfo: z.string().min(1),
+    diagnostic: z.string().trim().min(1),
+    description: z.string().trim().min(1),
+    procedure: z.string().trim().min(1),
+    recommendation: z.string().trim().min(1),
+    additionalInfo: z.string().trim().min(1),
   }),
   gallery: z.object({
     imageUrl: z.string().min(1),
-    comment: z.string().min(1),
+    comment: z.string().trim().min(1),
   }).array(),
 })
 
@@ -60,15 +60,15 @@ type ReportFormValues = z.infer<typeof formSchema>
 
 type ReportFormProps = {
   initialData: Report & {
-    equipment: Equipment
-    service: Service
+    equipment: ReportEquipment
+    service: ReportService
   } | null
 }
 
 export function ReportForm({
   initialData
 }: ReportFormProps) {
-  const params = useParams() as { reportId: string }
+  const params = useParams() as { reportId: string, orderId: string }
   const router = useRouter()
 
   const [open, setOpen] = useState(false)
@@ -114,13 +114,13 @@ export function ReportForm({
       setLoading(true)
 
       if (initialData) {
-        await axios.put(`/api/companies/${params.companyId}`, data)
+        // await axios.put(`/api/companies/${params.companyId}`, data)
       } else {
-        await axios.post('/api/companies', data)
+        await axios.post(`/api/orders/${params.orderId}/reports`, data)
       }
 
       router.refresh();
-      router.push(`/companies`);
+      router.push(`/orders/${params.orderId}/reports`);
       toast.success(toastMessage)
     } catch (error) {
       toast.error('Something went wrong')
@@ -132,10 +132,12 @@ export function ReportForm({
   const onDelete = async () => {
     try {
       setLoading(true)
-      await axios.delete(`/api/companies/${params.companyId}`);
+
+      await axios.delete(`/api/order/${params.orderId}/reports/${params.reportId}`);
+
       router.refresh()
-      router.push('/companies');
-      toast.success('Company deleted.');
+      router.push(`/orders/${params.orderId}/reports`);
+      toast.success('Company deleted');
     } catch (error: any) {
       toast.error('Make sure you removed all orders using this company first.');
     } finally {
@@ -164,7 +166,7 @@ export function ReportForm({
             onClick={() => setOpen(true)}
             variant="destructive"
           >
-            <Trash className="h-4 w-4" />
+            <Trash className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -172,9 +174,9 @@ export function ReportForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='space-y-8 w-full'
+          className='w-full space-y-8'
         >
-          <div className='grid md:grid-cols-5 gap-8'>
+          <div className='grid gap-8 md:grid-cols-5'>
             <FormField
               control={form.control}
               name="date"
@@ -196,7 +198,7 @@ export function ReportForm({
                           ) : (
                             <span>Pick a date</span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          <CalendarIcon className="w-4 h-4 ml-auto opacity-50" />
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
@@ -231,7 +233,7 @@ export function ReportForm({
             />
           </div>
           <Separator />
-          <div className='grid md:grid-cols-4 gap-8'>
+          <div className='grid gap-8 md:grid-cols-4'>
             <FormField
               control={form.control}
               name="equipment.name"
@@ -325,7 +327,7 @@ export function ReportForm({
             />
           </div>
           <Separator />
-          <div className='grid md:grid-cols-2 gap-8'>
+          <div className='grid gap-8 md:grid-cols-2'>
             <FormField
               control={form.control}
               name="service.diagnostic"
@@ -409,7 +411,7 @@ export function ReportForm({
           </div>
           <Separator />
           {fieldArray.fields.map((field, index) => (
-            <div key={field.id} className='grid md:grid-cols-6 gap-8'>
+            <div key={field.id} className='grid gap-8 md:grid-cols-6'>
               <FormField
                 control={form.control}
                 name={`gallery.${index}.imageUrl`}

@@ -2,8 +2,8 @@ import { format } from 'date-fns'
 
 import prisma from '@/lib/prisma'
 
-import { ReportsClient } from "./components/client"
-import { ReportColumn } from './components/columns'
+import { ReportsClient } from "./_components/client"
+import { ReportColumn } from './_components/columns'
 
 const ReportsPage = async ({
   params
@@ -16,18 +16,20 @@ const ReportsPage = async ({
     },
     include: {
       equipment: true,
+      schedule: true,
     }
   })
 
   const formattedReports: ReportColumn[] = reports.map((report) => ({
-    id: report.id,
-    name: report.equipment?.name || 'N/A',
-    createdAt: format(report.createdAt, 'MMMM dd, yyyy'),
+    number: report.number,
+    system: report.equipment?.name || 'N/A',
+    date: format(report.schedule?.date!, 'MMMM dd, yyyy'),
+    status: report.status,
   }))
 
   return (
     <div className="flex-col">
-      <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex-1 p-8 pt-6 space-y-4">
         <ReportsClient data={formattedReports} />
       </div>
     </div>
