@@ -1,16 +1,13 @@
 import { redirect } from "next/navigation"
-import { auth } from "@clerk/nextjs"
+
+import { initialProfile } from "@/lib/initial-profile"
 
 export default async function RootLayout(
   { children }: { children: React.ReactNode }
 ) {
-  const { userId } = auth()
+  const profile = await initialProfile()
 
-  if (!userId) {
-    redirect('/sign-in')
-  }
-
-  if (userId) {
+  if (profile) {
     redirect('/orders')
   }
 
