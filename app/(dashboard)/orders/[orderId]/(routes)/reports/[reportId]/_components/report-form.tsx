@@ -1,9 +1,9 @@
 "use client"
 
 import axios from 'axios'
-import { CalendarIcon, Trash } from 'lucide-react'
+import { CalendarIcon, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { Report, ReportEquipment, ReportService } from '@prisma/client'
+import { Report, ReportEquipment, ReportSchedule, ReportService, ServiceDescription, ServiceProcedure } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,6 +24,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,8 +33,10 @@ import {
 import ImageUpload from '@/components/image-upload'
 
 const formSchema = z.object({
-  date: z.date(),
-  hourStart: z.string().min(1),
+  schedule: z.object({
+    date: z.date(),
+    startTime: z.string().trim().min(1),
+  }),
   equipment: z.object({
     name: z.string().trim().min(1),
     location: z.string().trim().min(1),
@@ -45,24 +48,29 @@ const formSchema = z.object({
   }),
   service: z.object({
     diagnostic: z.string().trim().min(1),
-    description: z.string().trim().min(1),
-    procedure: z.string().trim().min(1),
     recommendation: z.string().trim().min(1),
     additionalInfo: z.string().trim().min(1),
+    descriptions: z.object({
+      description: z.string().trim().min(1),
+    }).array(),
+    procedures: z.object({
+      description: z.string().trim().min(1),
+    }).array(),
   }),
   gallery: z.object({
     imageUrl: z.string().min(1),
     comment: z.string().trim().min(1),
-  }).array(),
+  }).array().optional(),
 })
 
 type ReportFormValues = z.infer<typeof formSchema>
 
 type ReportFormProps = {
-  initialData: Report & {
-    equipment: ReportEquipment
-    service: ReportService
-  } | null
+  initialData: Report
+  & { equipment: ReportEquipment | null }
+  & { service: ReportService | null }
+  & { schedule: ReportSchedule | null }
+  | null
 }
 
 export function ReportForm({
@@ -82,8 +90,10 @@ export function ReportForm({
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      date: undefined,
-      hourStart: '',
+      schedule: {
+        date: undefined,
+        startTime: '',
+      },
       equipment: {
         name: '',
         location: '',
@@ -95,23 +105,35 @@ export function ReportForm({
       },
       service: {
         diagnostic: '',
-        description: '',
-        procedure: '',
         recommendation: '',
         additionalInfo: '',
+        descriptions: [{ description: '' }],
+        procedures: [{ description: '' }],
       },
       gallery: [{ imageUrl: '', comment: '' }]
     },
   })
 
-  const fieldArray = useFieldArray({
+  const galleryFieldArray = useFieldArray({
     control: form.control,
     name: 'gallery',
+  })
+
+  const descriptionFieldArray = useFieldArray({
+    control: form.control,
+    name: 'service.descriptions',
+  })
+
+  const procedureFieldArray = useFieldArray({
+    control: form.control,
+    name: 'service.procedures',
   })
 
   const onSubmit = async (data: ReportFormValues) => {
     try {
       setLoading(true)
+
+      console.log(data)
 
       if (initialData) {
         // await axios.put(`/api/companies/${params.companyId}`, data)
@@ -179,7 +201,7 @@ export function ReportForm({
           <div className='grid gap-8 md:grid-cols-5'>
             <FormField
               control={form.control}
-              name="date"
+              name="schedule.date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date</FormLabel>
@@ -220,7 +242,7 @@ export function ReportForm({
             />
             <FormField
               control={form.control}
-              name="hourStart"
+              name="schedule.startTime"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hour start</FormLabel>
@@ -328,6 +350,104 @@ export function ReportForm({
           </div>
           <Separator />
           <div className='grid gap-8 md:grid-cols-2'>
+            <div className='col-start-1'>
+              <FormItem className="flex items-center justify-between">
+                <div>
+                  <FormLabel>Service description</FormLabel>
+                  <FormDescription>You can add multiple descriptions for this service.</FormDescription>
+                </div>
+                <Button
+                  size="sm"
+                  type='button'
+                  variant="ghost"
+                  onClick={() => descriptionFieldArray.append({ description: '' })}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add description
+                </Button>
+              </FormItem>
+              {descriptionFieldArray.fields.map((field, index) => (
+                <div key={field.id} className='my-2'>
+                  <FormField
+                    control={form.control}
+                    name={`service.descriptions.${index}.description`}
+                    render={({ field }) => (
+                      <div className='flex flex-col w-full'>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Service description'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <Button
+                          size="sm"
+                          type='button'
+                          variant="link"
+                          className='ml-auto'
+                          disabled={loading || descriptionFieldArray.fields.length === 1}
+                          onClick={() => descriptionFieldArray.remove(index)}
+                        >
+                          <Trash className="w-4 h-4 mr-2" />
+                          Remove description
+                        </Button>
+                      </div>
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className='col-start-2'>
+              <FormItem className="flex items-center justify-between">
+                <div>
+                  <FormLabel>Service procedures</FormLabel>
+                  <FormDescription>
+                    You can add multiple procedures for this service.
+                  </FormDescription>
+                </div>
+                <Button
+                  size="sm"
+                  type='button'
+                  variant="ghost"
+                  onClick={() => procedureFieldArray.append({ description: '' })}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add procedure
+                </Button>
+              </FormItem>
+              {procedureFieldArray.fields.map((field, index) => (
+                <div key={field.id} className='my-2'>
+                  <FormField
+                    control={form.control}
+                    name={`service.procedures.${index}.description`}
+                    render={({ field }) => (
+                      <div className='flex flex-col w-full'>
+                        <FormControl>
+                          <Input
+                            disabled={loading}
+                            placeholder='Service procedure'
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        <Button
+                          size="sm"
+                          type='button'
+                          variant="link"
+                          className='ml-auto'
+                          disabled={loading || procedureFieldArray.fields.length === 1}
+                          onClick={() => procedureFieldArray.remove(index)}
+                        >
+                          <Trash className="w-4 h-4 mr-2" />
+                          Remove procedure
+                        </Button>
+                      </div>
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
             <FormField
               control={form.control}
               name="service.diagnostic"
@@ -336,43 +456,12 @@ export function ReportForm({
                   <FormLabel>Service diagnostic</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tell us a little bit about yourself"
+                      placeholder="Service diagnostic"
                       className="resize-none"
                       {...field}
                     />
                   </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="service.description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell us a little bit about yourself"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="service.procedure"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service procedure</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell us a little bit about yourself"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -389,6 +478,7 @@ export function ReportForm({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -405,12 +495,13 @@ export function ReportForm({
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
           <Separator />
-          {fieldArray.fields.map((field, index) => (
+          {galleryFieldArray.fields.map((field, index) => (
             <div key={field.id} className='grid gap-8 md:grid-cols-6'>
               <FormField
                 control={form.control}
@@ -437,7 +528,11 @@ export function ReportForm({
                   <FormItem className='col-span-4'>
                     <FormLabel>Comment</FormLabel>
                     <FormControl>
-                      <Input placeholder='Comment for the image' disabled={loading} {...field} />
+                      <Input
+                        disabled={loading}
+                        placeholder='Comment for the image'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
