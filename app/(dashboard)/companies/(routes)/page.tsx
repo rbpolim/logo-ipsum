@@ -1,8 +1,8 @@
 import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 
-import { CompaniesClient } from "./_components/client"
-import { CompanyColumn } from './_components/columns'
+import { CompaniesClient } from "../_components/client"
+import { CompanyColumn } from '../_components/columns'
 
 const CompaniesPage = async () => {
   const companies = await prisma.company.findMany()
