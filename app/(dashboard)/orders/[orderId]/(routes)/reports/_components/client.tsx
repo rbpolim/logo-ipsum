@@ -8,7 +8,7 @@ import { Heading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/data-table";
 
-import { ReportColumn, columns } from "./columns";
+import { ReportColumn, columns } from "../_components/columns";
 
 type ReportsClientProps = {
   data: ReportColumn[];
@@ -28,7 +28,7 @@ export function ReportsClient({
           description="Manage reports and their associated equipment, services and images."
         />
         <Button onClick={() => router.push(`/orders/${params.orderId}/reports/new`)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New
+          <Plus className="w-4 h-4 mr-2" /> Add New
         </Button>
       </div>
       <Separator />

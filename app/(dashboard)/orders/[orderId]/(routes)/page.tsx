@@ -18,7 +18,10 @@ const OrderPage = async ({
   return (
     <div className="flex-col">
       <div className="flex-1 p-8 pt-6 space-y-4">
-        <OrderForm initialData={order} companies={companies} />
+        <OrderForm
+          initialData={order}
+          companies={companies}
+        />
       </div>
     </div>
   )

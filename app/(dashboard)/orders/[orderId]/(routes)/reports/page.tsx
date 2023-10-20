@@ -21,6 +21,7 @@ const ReportsPage = async ({
   })
 
   const formattedReports: ReportColumn[] = reports.map((report) => ({
+    id: report.id,
     number: report.number,
     system: report.equipment?.name || 'N/A',
     date: format(report.schedule?.date!, 'MMMM dd, yyyy'),

@@ -27,7 +27,8 @@ export function OrdersClient({
           description="Manage orders for your store"
         />
         <Button onClick={() => router.push(`/orders/new`)}>
-          <Plus className="w-4 h-4 mr-2" /> Add New
+          <Plus className="w-4 h-4 mr-2" />
+          Add New
         </Button>
       </div>
       <Separator />

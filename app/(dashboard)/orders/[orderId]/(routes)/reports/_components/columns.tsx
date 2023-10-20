@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { CellAction } from "../_components/cell-action"
 
 export type ReportColumn = {
+  id: string
   number: number
   system: string
   date: string
