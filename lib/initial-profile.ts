@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { currentUser, redirectToSignIn } from "@clerk/nextjs";
 
 import prisma from "@/lib/prisma";
@@ -6,7 +7,7 @@ export const initialProfile = async () => {
   const user = await currentUser();
 
   if (!user) {
-    return redirectToSignIn();
+    return redirect("/sign-in");
   }
 
   const profile = await prisma.profile.findUnique({
@@ -15,18 +16,17 @@ export const initialProfile = async () => {
     }
   });
 
-  if (profile) {
-    return profile;
+
+  if (!profile) {
+    await prisma.profile.create({
+      data: {
+        userId: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        imageUrl: user.imageUrl,
+        email: user.emailAddresses[0].emailAddress
+      }
+    });
   }
 
-  const newProfile = await prisma.profile.create({
-    data: {
-      userId: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      imageUrl: user.imageUrl,
-      email: user.emailAddresses[0].emailAddress
-    }
-  });
-
-  return newProfile;
+  return redirect("/orders");
 };

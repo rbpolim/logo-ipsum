@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 import { Heading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/data-table";
@@ -15,8 +13,6 @@ type UsersClientProps = {
 export function UsersClient({
   data
 }: UsersClientProps) {
-  const router = useRouter();
-
   return (
     <>
       <Heading
@@ -24,7 +20,7 @@ export function UsersClient({
         description="Manage users for your store"
       />
       <Separator />
-      <DataTable searchKey="number" columns={columns} data={data} />
+      <DataTable searchKey="name" columns={columns} data={data} />
     </>
   )
 }
