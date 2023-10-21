@@ -9,13 +9,14 @@ datasource db {
 }
 
 model Profile {
-  id       String  @id @default(cuid())
-  userId   String  @unique
+  id       String       @id @default(cuid())
+  userId   String       @unique
+  register String?      @unique
   name     String
   imageUrl String
   email    String
-  role     ROLE    @default(USER)
-  register String? @unique
+  role     PROFILE_ROLE @default(USER)
+  position String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -146,9 +147,10 @@ model ReportGallery {
   @@index([reportId])
 }
 
-enum ROLE {
+enum PROFILE_ROLE {
   ADMIN
   TECHNICIAN
+  MANAGER
   USER
 }
 
