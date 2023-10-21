@@ -150,6 +150,15 @@ export function CompanyForm({
               )}
             />
           </div>
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            className='ml-auto mr-4'
+            onClick={() => router.back()}
+          >
+            Cancel
+          </Button>
           <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
