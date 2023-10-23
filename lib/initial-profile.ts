@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { currentUser, redirectToSignIn } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs";
 
 import prisma from "@/lib/prisma";
 

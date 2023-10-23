@@ -11,38 +11,48 @@ datasource db {
 model Profile {
   id       String       @id @default(cuid())
   userId   String       @unique
-  register String?      @unique
   name     String
   imageUrl String
   email    String
   role     PROFILE_ROLE @default(USER)
   position String?
+  register String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Order {
-  id              String       @id @default(cuid())
-  number          Int          @unique @default(autoincrement())
-  userId          String
-  startDate       DateTime
-  expectedEndDate DateTime?
-  endDate         DateTime?
-  requester       String
-  purpose         String
-  location        String
-  status          ORDER_STATUS @default(IN_PROGRESS)
+  id        String       @id @default(cuid())
+  number    Int          @unique @default(autoincrement())
+  userId    String
+  requester String
+  purpose   String
+  location  String
+  status    ORDER_STATUS @default(IN_PROGRESS)
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
-  reports Report[]
+  schedule OrderSchedule?
+  reports  Report[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([companyId])
+}
+
+model OrderSchedule {
+  id               String    @id @default(cuid())
+  startDate        DateTime
+  predictedEndDate DateTime
+  endDate          DateTime?
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
 }
 
 model Company {
