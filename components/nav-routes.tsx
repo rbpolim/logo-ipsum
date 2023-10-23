@@ -23,9 +23,9 @@ export function NavRoutes({
       active: pathname.startsWith('/companies'),
     },
     {
-      href: `/users`,
-      label: 'Users',
-      active: pathname.startsWith('/users'),
+      href: `/profiles`,
+      label: 'Profiles',
+      active: pathname.startsWith('/profiles'),
     },
   ]
 
