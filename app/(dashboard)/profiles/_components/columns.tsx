@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 
 import { CellAction } from "../_components/cell-action"
 
-export type UserColumn = {
+export type ProfileColumn = {
   id: string
   register: string
   name: string
@@ -14,7 +14,7 @@ export type UserColumn = {
   role: string
 }
 
-export const columns: ColumnDef<UserColumn>[] = [
+export const columns: ColumnDef<ProfileColumn>[] = [
   {
     accessorKey: "register",
     header: "Register",
@@ -31,6 +31,10 @@ export const columns: ColumnDef<UserColumn>[] = [
     accessorKey: "role",
     header: "Role",
     cell: ({ row }) => <Badge>{row.original.role}</Badge>
+  },
+  {
+    accessorKey: "position",
+    header: "Position",
   },
   {
     id: "actions",

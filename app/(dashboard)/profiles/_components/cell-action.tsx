@@ -16,11 +16,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { AlertModal } from "@/components/modals/alert-modal"
 
-import { UserColumn } from "../_components/columns"
+import { ProfileColumn } from "../_components/columns"
 
 
 type CellActionProps = {
-  data: UserColumn
+  data: ProfileColumn
 }
 
 export const CellAction = ({
@@ -37,7 +37,7 @@ export const CellAction = ({
 
       setLoading(true)
 
-      // await axios.delete(`/api/users/${data.id}`)
+      // await axios.delete(`/api/profiles/${data.id}`)
 
       toast.success('User deleted.')
       router.refresh()
@@ -68,7 +68,7 @@ export const CellAction = ({
           <DropdownMenuLabel>
             Actions
           </DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => router.push(`/users/${data.id}`)}>
+          <DropdownMenuItem onClick={() => router.push(`/profiles/${data.id}`)}>
             <Edit className="w-4 h-4 mr-2" />
             Update
           </DropdownMenuItem>

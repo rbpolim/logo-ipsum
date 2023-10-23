@@ -4,20 +4,20 @@ import { Heading } from "@/components/heading";
 import { Separator } from "@/components/ui/separator";
 import { DataTable } from "@/components/data-table";
 
-import { UserColumn, columns } from "../_components/columns";
+import { ProfileColumn, columns } from "../_components/columns";
 
-type UsersClientProps = {
-  data: UserColumn[]
+type ProfilesClientProps = {
+  data: ProfileColumn[]
 }
 
-export function UsersClient({
+export function ProfilesClient({
   data
-}: UsersClientProps) {
+}: ProfilesClientProps) {
   return (
     <>
       <Heading
-        title={`Users (${data.length})`}
-        description="Manage users for your store"
+        title={`Profiles (${data.length})`}
+        description="Manage profiles for your store"
       />
       <Separator />
       <DataTable searchKey="name" columns={columns} data={data} />

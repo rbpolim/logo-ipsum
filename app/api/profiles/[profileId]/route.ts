@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma"
 
 export async function PUT(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: { profileId: string } }
 ) {
   try {
     const { userId } = auth()
@@ -16,9 +16,23 @@ export async function PUT(
 
     const body = await req.json()
 
+    const { name, email, role  } = body
+
+    if (!name) {
+      return new NextResponse('Name is required', { status: 400 })
+    }
+
+    if (!email) {
+      return new NextResponse('Email is required', { status: 400 })
+    }
+
+    if (!role) {
+      return new NextResponse('Role is required', { status: 400 })
+    }
+
     await prisma.profile.update({
       where: {
-        userId: params.userId
+        id: params.profileId
       },
       data: {
         ...body

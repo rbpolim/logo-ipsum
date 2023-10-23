@@ -23,12 +23,17 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
 
 const roles = [
-  { id: 1, label: 'User', value: 'USER' },
-  { id: 2, label: 'Technician', value: 'TECHNICIAN' },
-  { id: 3, label: 'Manager', value: 'MANAGER' },
+  { id: 1, label: 'Technician', value: 'TECHNICIAN' },
+  { id: 2, label: 'Manager', value: 'MANAGER' },
 ]
 
 const techPositions = [
@@ -59,27 +64,27 @@ const formSchema = z.object({
   position: z.string().nullable(),
 })
 
-type UserFormValues = z.infer<typeof formSchema>
+type ProfileFormValues = z.infer<typeof formSchema>
 
-type UserFormProps = {
+type ProfileFormProps = {
   initialData: Profile | null
 }
 
-export function UserForm({
+export function ProfileForm({
   initialData
-}: UserFormProps) {
-  const params = useParams() as { userId: string }
+}: ProfileFormProps) {
+  const params = useParams() as { profileId: string }
   const router = useRouter()
 
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const title = 'Edit user'
-  const description = 'Edit an existing user.'
-  const action = 'Edit user'
-  const toastMessage = 'User edited'
+  const title = 'Edit profile'
+  const description = 'Edit an existing profile.'
+  const action = 'Edit profile'
+  const toastMessage = 'Profile edited'
 
-  const form = useForm<UserFormValues>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: '',
@@ -91,16 +96,15 @@ export function UserForm({
   })
 
   const watchRole = form.watch('role')
-  console.log(watchRole)
 
-  const onSubmit = async (data: UserFormValues) => {
+  const onSubmit = async (data: ProfileFormValues) => {
     try {
       setLoading(true)
 
-      await axios.put(`/api/users/${params.userId}`, data)
+      await axios.put(`/api/profiles/${params.profileId}`, data)
 
       router.refresh();
-      router.push(`/users`);
+      router.push(`/profiles`);
       toast.success(toastMessage)
     } catch (error) {
       toast.error('Something went wrong')
@@ -113,10 +117,10 @@ export function UserForm({
     try {
       setLoading(true)
 
-      await axios.delete(`/api/users/${params.userId}`);
+      await axios.delete(`/api/profiles/${params.profileId}`);
 
       router.refresh()
-      router.push('/users');
+      router.push('/profiles');
       toast.success('User deleted');
     } catch (error: any) {
       toast.error('Make sure you removed all orders using this company first.');
@@ -205,7 +209,7 @@ export function UserForm({
                   <FormLabel>User role</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={initialData ? initialData.role : undefined}
+                    defaultValue={initialData?.role === 'USER' ? undefined : initialData?.role}
                     disabled={loading}
                   >
                     <FormControl>
