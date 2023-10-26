@@ -13,7 +13,37 @@ export type OrderColumn = {
   unit: string
   status: string
   startDate: string
-  predictedEndDate: string
+}
+
+const badgeVariants = {
+  variant: {
+    default: 'default',
+    secondary: 'secondary',
+    success: 'success',
+    destructive: 'destructive',
+    outline: 'outline',
+  },
+};
+
+type BadgeVariantType = keyof typeof badgeVariants.variant;
+
+const mappingStatus: Record<string, { label: string, variant: BadgeVariantType }> = {
+  "IN_PROGRESS": {
+    label: "In progress",
+    variant: 'default'
+  },
+  "WAITING_APPROVAL_POLL": {
+    label: "Completed",
+    variant: "success"
+  },
+  "FINISHED": {
+    label: "Cancelled",
+    variant: "destructive"
+  },
+  "CANCELED": {
+    label: "Pending",
+    variant: "secondary"
+  },
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [
@@ -32,15 +62,15 @@ export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => <Badge>{row.original.status}</Badge>
+    cell: ({ row }) => (
+      <Badge variant={mappingStatus[row.original.status].variant}>
+        {mappingStatus[row.original.status].label}
+      </Badge>
+    )
   },
   {
     accessorKey: "startDate",
     header: "Date start",
-  },
-  {
-    accessorKey: "predictedEndDate",
-    header: "Date predict end",
   },
   {
     id: "actions",
