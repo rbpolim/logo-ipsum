@@ -13,6 +13,11 @@ export function NavRoutes({
 
   const routes = [
     {
+      href: `/dashboard`,
+      label: 'Dashboard',
+      active: pathname.startsWith('/dashboard'),
+    },
+    {
       href: `/orders`,
       label: 'Orders',
       active: pathname.startsWith('/orders'),
