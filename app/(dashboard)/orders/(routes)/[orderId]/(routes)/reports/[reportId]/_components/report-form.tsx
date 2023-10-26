@@ -3,7 +3,7 @@
 import axios from 'axios'
 import { CalendarIcon, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { Report, ReportEquipment, ReportSchedule, ReportService, ServiceDescription, ServiceProcedure } from '@prisma/client'
+import { Report } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -50,13 +50,13 @@ const formSchema = z.object({
     diagnostic: z.string().trim().min(1),
     recommendation: z.string().trim().min(1),
     additionalInfo: z.string().trim().min(1),
-    descriptions: z.object({
-      description: z.string().trim().min(1),
-    }).array(),
-    procedures: z.object({
-      description: z.string().trim().min(1),
-    }).array(),
   }),
+  descriptions: z.object({
+    description: z.string().trim().min(1),
+  }).array(),
+  procedures: z.object({
+    description: z.string().trim().min(1),
+  }).array(),
   gallery: z.object({
     imageUrl: z.string().min(1),
     comment: z.string().trim().min(1),
@@ -66,11 +66,7 @@ const formSchema = z.object({
 type ReportFormValues = z.infer<typeof formSchema>
 
 type ReportFormProps = {
-  initialData: Report
-  & { equipment: ReportEquipment | null }
-  & { service: ReportService | null }
-  & { schedule: ReportSchedule | null }
-  | null
+  initialData: Report | null
 }
 
 export function ReportForm({
@@ -78,6 +74,8 @@ export function ReportForm({
 }: ReportFormProps) {
   const params = useParams() as { reportId: string, orderId: string }
   const router = useRouter()
+
+  console.log(initialData)
 
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -89,6 +87,7 @@ export function ReportForm({
 
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(formSchema),
+    // @ts-ignore TODO: fix this
     defaultValues: initialData || {
       schedule: {
         date: undefined,
@@ -107,10 +106,10 @@ export function ReportForm({
         diagnostic: '',
         recommendation: '',
         additionalInfo: '',
-        descriptions: [{ description: '' }],
-        procedures: [{ description: '' }],
       },
-      gallery: [{ imageUrl: '', comment: '' }]
+      descriptions: [{ description: '' }],
+      procedures: [{ description: '' }],
+      gallery: []
     },
   })
 
@@ -121,22 +120,20 @@ export function ReportForm({
 
   const descriptionFieldArray = useFieldArray({
     control: form.control,
-    name: 'service.descriptions',
+    name: 'descriptions',
   })
 
   const procedureFieldArray = useFieldArray({
     control: form.control,
-    name: 'service.procedures',
+    name: 'procedures',
   })
 
   const onSubmit = async (data: ReportFormValues) => {
     try {
       setLoading(true)
 
-      console.log(data)
-
       if (initialData) {
-        // await axios.put(`/api/companies/${params.companyId}`, data)
+        await axios.put(`/api/orders/${params.orderId}/reports/${params.reportId}`, data)
       } else {
         await axios.post(`/api/orders/${params.orderId}/reports`, data)
       }
@@ -230,9 +227,7 @@ export function ReportForm({
                         mode="single"
                         selected={field.value}
                         onDayClick={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
+                        disabled={(date) => date < new Date("2023-01-01")}
                       />
                     </PopoverContent>
                   </Popover>
@@ -245,7 +240,7 @@ export function ReportForm({
               name="schedule.startTime"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hour start</FormLabel>
+                  <FormLabel>Hour time</FormLabel>
                   <FormControl>
                     <Input type="time" disabled={loading} {...field} />
                   </FormControl>
@@ -370,7 +365,7 @@ export function ReportForm({
                 <div key={field.id} className='my-2'>
                   <FormField
                     control={form.control}
-                    name={`service.descriptions.${index}.description`}
+                    name={`descriptions.${index}.description`}
                     render={({ field }) => (
                       <div className='flex flex-col w-full'>
                         <FormControl>
@@ -384,8 +379,8 @@ export function ReportForm({
                         <Button
                           size="sm"
                           type='button'
-                          variant="link"
-                          className='ml-auto'
+                          variant="destructive"
+                          className='mt-1 ml-auto'
                           disabled={loading || descriptionFieldArray.fields.length === 1}
                           onClick={() => descriptionFieldArray.remove(index)}
                         >
@@ -420,7 +415,7 @@ export function ReportForm({
                 <div key={field.id} className='my-2'>
                   <FormField
                     control={form.control}
-                    name={`service.procedures.${index}.description`}
+                    name={`procedures.${index}.description`}
                     render={({ field }) => (
                       <div className='flex flex-col w-full'>
                         <FormControl>
@@ -434,8 +429,8 @@ export function ReportForm({
                         <Button
                           size="sm"
                           type='button'
-                          variant="link"
-                          className='ml-auto'
+                          variant="destructive"
+                          className='mt-1 ml-auto'
                           disabled={loading || procedureFieldArray.fields.length === 1}
                           onClick={() => procedureFieldArray.remove(index)}
                         >
@@ -501,45 +496,72 @@ export function ReportForm({
             />
           </div>
           <Separator />
-          {galleryFieldArray.fields.map((field, index) => (
-            <div key={field.id} className='grid gap-8 md:grid-cols-6'>
-              <FormField
-                control={form.control}
-                name={`gallery.${index}.imageUrl`}
-                render={({ field }) => (
-                  <FormItem className='col-span-2'>
-                    <FormLabel>Image</FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value ? [field.value] : []}
-                        disabled={loading}
-                        onChange={(url) => field.onChange(url)}
-                        onRemove={() => field.onChange('')}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`gallery.${index}.comment`}
-                render={({ field }) => (
-                  <FormItem className='col-span-4'>
-                    <FormLabel>Comment</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={loading}
-                        placeholder='Comment for the image'
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <section className='space-y-4'>
+            <div className='flex items-center justify-between'>
+              <div>
+                <FormLabel>Gallery</FormLabel>
+                <FormDescription>You can add multiple images and comments</FormDescription>
+              </div>
+              <Button
+                type="button"
+                onClick={() => galleryFieldArray.append({ imageUrl: '', comment: '' })}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add image
+              </Button>
             </div>
-          ))}
+            <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4'>
+              {galleryFieldArray.fields.map((field, index) => (
+                <div key={field.id} className='p-2 border border-dashed rounded-lg gap-x-2'>
+                  <div className='flex justify-between'>
+                    <FormField
+                      control={form.control}
+                      name={`gallery.${index}.imageUrl`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <ImageUpload
+                              value={field.value ? [field.value] : []}
+                              disabled={loading}
+                              onChange={(url) => field.onChange(url)}
+                              onRemove={() => field.onChange('')}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant='destructive'
+                      onClick={() => galleryFieldArray.remove(index)}
+                    >
+                      <Trash className="w-4 h-4 mr-2" />
+                      Remove
+                    </Button>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name={`gallery.${index}.comment`}
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel>Comment</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Tell us a little bit about this image"
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
           <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
