@@ -1,14 +1,14 @@
 "use client"
 
 import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Company, Order } from '@prisma/client'
+import React, { useState } from 'react'
+import { Company, Order, OrderSchedule } from '@prisma/client'
 import { CalendarIcon, Trash } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from 'zod'
 import { toast } from 'react-hot-toast'
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import axios from 'axios'
 
 import { cn } from '@/lib/utils'
@@ -39,19 +39,19 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { DateRange } from 'react-day-picker'
 
 const formSchema = z.object({
   companyId: z.string().min(1),
   requester: z.string().trim().min(1),
   location: z.string().trim().min(1),
   purpose: z.string().trim().min(1),
-  startDate: z.date(),
 })
 
 type OrderFormValues = z.infer<typeof formSchema>
 
 type OrderFormProps = {
-  initialData: Order | null
+  initialData: Order & { schedule: OrderSchedule | null } | null
   companies: Company[]
 }
 
@@ -64,6 +64,10 @@ export default function OrderForm({
 
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: initialData ? new Date(initialData.schedule!.startDate) : new Date(),
+    to: initialData ? new Date(initialData.schedule!.predictedEndDate) : addDays(new Date(), 7)
+  })
 
   const title = initialData ? 'Edit order' : 'Create order'
   const description = initialData ? 'Edit an existing order.' : 'Create a new order.'
@@ -74,7 +78,6 @@ export default function OrderForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       companyId: '',
-      startDate: undefined,
       requester: '',
       location: '',
       purpose: '',
@@ -85,10 +88,19 @@ export default function OrderForm({
     try {
       setLoading(true)
 
+      const startDate = date?.from
+      const predictedEndDate = date?.to
+
+      const dataFormatted = {
+        ...data,
+        startDate,
+        predictedEndDate
+      }
+
       if (initialData) {
-        await axios.put(`/api/orders/${params.orderId}`, data)
+        await axios.put(`/api/orders/${params.orderId}`, dataFormatted)
       } else {
-        await axios.post('/api/orders', data)
+        await axios.post('/api/orders', dataFormatted)
       }
 
       router.refresh();
@@ -214,47 +226,51 @@ export default function OrderForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger disabled={loading} asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="w-4 h-4 ml-auto opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        initialFocus
-                        mode="single"
-                        selected={field.value}
-                        onDayClick={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <FormItem>
+              <FormLabel>
+                Select a start and end date
+              </FormLabel>
+              <div className={cn("grid gap-2")}>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      disabled={loading}
+                      className={cn(
+                        "w-[300px] justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="w-4 h-4 mr-2" />
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, "LLL dd, y")} -{" "}
+                            {format(date.to, "LLL dd, y")}
+                          </>
+                        ) : (
+                          format(date.from, "LLL dd, y")
+                        )
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={setDate}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <FormMessage />
+            </FormItem>
           </div>
           <Button
             disabled={loading}
