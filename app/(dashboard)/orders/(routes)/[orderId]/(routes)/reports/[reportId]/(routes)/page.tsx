@@ -14,17 +14,12 @@ const ReportPage = async ({
     include: {
       equipment: true,
       schedule: true,
-      service: {
-        include: {
-          descriptions: true,
-          procedures: true
-        }
-      },
+      service: true,
       gallery: true,
+      descriptions: true,
+      procedures: true,
     }
   })
-
-  console.log(report)
 
   return (
     <div className="flex-col">
