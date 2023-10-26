@@ -11,6 +11,9 @@ const OrderPage = async ({
     where: {
       id: params.orderId
     },
+    include: {
+      schedule: true,
+    }
   })
 
   const companies = await prisma.company.findMany()

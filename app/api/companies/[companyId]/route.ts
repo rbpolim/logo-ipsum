@@ -79,8 +79,6 @@ export async function DELETE(
   { params }: { params: { companyId: string } }
 ) {
   try {
-    console.log(params.companyId)
-
     const { userId } = auth()
 
     if (!userId) {

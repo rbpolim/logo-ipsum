@@ -9,6 +9,7 @@ export default async function OrdersPage() {
   const orders = await prisma.order.findMany({
     include: {
       company: true,
+      schedule: true,
     }
   })
 
@@ -18,7 +19,8 @@ export default async function OrdersPage() {
     company: order.company.name,
     unit: order.company.unit,
     status: order.status,
-    startDate: format(order.startDate, 'MMMM dd, yyyy'),
+    startDate: format(order.schedule!.startDate, 'MMMM dd, yyyy'),
+    predictedEndDate: format(order.schedule!.predictedEndDate, 'MMMM dd, yyyy'),
   }))
 
   return (
