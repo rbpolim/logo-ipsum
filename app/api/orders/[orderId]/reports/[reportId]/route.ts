@@ -3,20 +3,24 @@ import { auth } from '@clerk/nextjs'
 
 import prisma from "@/lib/prisma"
 
-export async function POST(
+export async function PUT(
   req: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: { orderId: string, reportId: string } }
 ) {
   try {
     const { userId } = auth()
     const body = await req.json()
-
+    
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
     if (!params.orderId) {
       return new NextResponse('Order ID is required', { status: 400 })
+    }
+    
+    if (!params.reportId) {
+      return new NextResponse('Report ID is required', { status: 400 })
     }
 
     const { schedule, equipment, service, descriptions, procedures, gallery } = body
@@ -42,21 +46,45 @@ export async function POST(
     }
 
     if (!descriptions.length || !procedures.length) {
-      return new NextResponse('Service description/procedure is required', { status: 400 })
+      return new NextResponse(
+        'Service description/procedure is required', 
+        { status: 400 }
+      )
     }
 
-    const report = await prisma.report.create({
+    await prisma.reportGallery.deleteMany({
+      where: {
+        reportId: params.reportId
+      },
+    })
+
+    await prisma.reportDescription.deleteMany({
+      where: {
+        reportId: params.reportId
+      },
+    })
+
+    await prisma.reportProcedure.deleteMany({
+      where: {
+        reportId: params.reportId
+      },
+    })
+
+    const report = await prisma.report.update({
+      where: {
+        id: params.reportId,
+        orderId: params.orderId,
+      },
       data: {
         userId,
-        orderId: params.orderId,
         schedule: {
-          create: { ...schedule }
+          update: { ...schedule }
         },
         equipment: {
-          create: { ...equipment }
+          update: { ...equipment }
         },
         service: {
-          create: { ...service },
+          update: { ...service },
         },
         gallery: {
           createMany: {
