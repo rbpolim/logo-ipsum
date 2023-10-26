@@ -76,10 +76,12 @@ model Report {
   orderId String
   order   Order  @relation(fields: [orderId], references: [id])
 
-  schedule  ReportSchedule?
-  equipment ReportEquipment?
-  service   ReportService?
-  gallery   ReportGallery[]
+  schedule     ReportSchedule?
+  equipment    ReportEquipment?
+  service      ReportService?
+  gallery      ReportGallery[]
+  procedures   ReportProcedure[]
+  descriptions ReportDescription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -119,31 +121,28 @@ model ReportService {
   recommendation String
   additionalInfo String
 
-  procedures   ServiceProcedure[]
-  descriptions ServiceDescription[]
-
   reportId String @unique
   report   Report @relation(fields: [reportId], references: [id])
 }
 
-model ServiceProcedure {
+model ReportProcedure {
   id          String @id @default(cuid())
   description String
 
-  serviceId String
-  service   ReportService @relation(fields: [serviceId], references: [id])
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id])
 
-  @@index([serviceId])
+  @@index([reportId])
 }
 
-model ServiceDescription {
+model ReportDescription {
   id          String @id @default(cuid())
   description String
 
-  serviceId String
-  service   ReportService @relation(fields: [serviceId], references: [id])
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id])
 
-  @@index([serviceId])
+  @@index([reportId])
 }
 
 model ReportGallery {
