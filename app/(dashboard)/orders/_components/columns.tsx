@@ -8,7 +8,7 @@ import { CellAction } from "../_components/cell-action"
 
 export type OrderColumn = {
   id: string
-  number: number
+  number: string
   company: string
   unit: string
   status: string

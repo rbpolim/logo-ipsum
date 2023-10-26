@@ -4,23 +4,26 @@ import prisma from "@/lib/prisma"
 
 import { OrdersClient } from "../_components/client"
 import { OrderColumn } from "../_components/columns"
+import { addYearPrefixToId } from "@/lib/utils"
 
 export default async function OrdersPage() {
   const orders = await prisma.order.findMany({
     include: {
       company: true,
       schedule: true,
+    },
+    orderBy: {
+      createdAt: 'desc'
     }
   })
 
   const formattedOrders: OrderColumn[] = orders.map((order) => ({
     id: order.id,
-    number: order.number,
+    number: addYearPrefixToId(order.number),
     company: order.company.name,
     unit: order.company.unit,
     status: order.status,
     startDate: format(order.schedule!.startDate, 'MMMM dd, yyyy'),
-    predictedEndDate: format(order.schedule!.predictedEndDate, 'MMMM dd, yyyy'),
   }))
 
   return (
