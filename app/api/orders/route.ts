@@ -8,10 +8,16 @@ export async function POST(
 ) {
   try {
     const { userId } = auth()
-
     const body = await req.json()
 
-    const { companyId, requester, location, purpose, startDate } = body
+    const { 
+      companyId, 
+      requester, 
+      location, 
+      purpose, 
+      startDate, 
+      predictedEndDate 
+    } = body
 
     if (!userId) {
       return new NextResponse('Unauthorized', { status: 401 })
@@ -33,18 +39,23 @@ export async function POST(
       return new NextResponse('Purpose is required', { status: 400 })
     }
 
-    if (!startDate) {
-      return new NextResponse('Start date is required', { status: 400 })
+    if (!startDate && !predictedEndDate) {
+      return new NextResponse('Range date is required', { status: 400 })
     }
-
+    
     const order = await prisma.order.create({
       data: {
         companyId,
         requester,
-        location,
         purpose,
-        startDate,
-        userId
+        location,
+        userId,
+        schedule: {
+          create: {
+            startDate,
+            predictedEndDate,
+          }
+        }
       }
     })
 

@@ -2,8 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 
-import { CellAction } from "./cell-action"
 import { Badge } from "@/components/ui/badge"
+
+import { CellAction } from "../_components/cell-action"
 
 export type OrderColumn = {
   id: string
@@ -12,6 +13,7 @@ export type OrderColumn = {
   unit: string
   status: string
   startDate: string
+  predictedEndDate: string
 }
 
 export const columns: ColumnDef<OrderColumn>[] = [
@@ -34,7 +36,11 @@ export const columns: ColumnDef<OrderColumn>[] = [
   },
   {
     accessorKey: "startDate",
-    header: "Date",
+    header: "Date start",
+  },
+  {
+    accessorKey: "predictedEndDate",
+    header: "Date predict end",
   },
   {
     id: "actions",
