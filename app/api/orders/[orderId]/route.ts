@@ -3,33 +3,6 @@ import { auth } from '@clerk/nextjs'
 
 import prisma from "@/lib/prisma"
 
-export async function GET(
-  { params }: { params: { orderId: string } }
-) {
-  try {
-    const { userId } = auth()
-
-    if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
-
-    if (!params.orderId) {
-      return new NextResponse('Order ID is required', { status: 400 })
-    }
-
-    const order = await prisma.order.findUnique({
-      where: {
-        id: params.orderId,
-      },
-    })
-
-    return NextResponse.json(order)
-  } catch (error) {
-    console.error('[ORDER_GET]', error)
-    return new NextResponse('Internal Error', { status: 500 })
-  }
-}
-
 export async function PUT(
   req: Request,
   { params }: { params: { orderId: string } }
@@ -39,7 +12,14 @@ export async function PUT(
 
     const body = await req.json()
 
-    const { companyId, requester, location, purpose, startDate } = body
+    const { 
+      companyId, 
+      requester, 
+      location, 
+      purpose, 
+      startDate, 
+      predictedEndDate 
+    } = body
 
     if (!params.orderId) {
       return new NextResponse('Order ID is required', { status: 400 })
@@ -65,8 +45,8 @@ export async function PUT(
       return new NextResponse('Purpose is required', { status: 400 })
     }
 
-    if (!startDate) {
-      return new NextResponse('Start date is required', { status: 400 })
+    if (!startDate && !predictedEndDate) {
+      return new NextResponse('Range date is required', { status: 400 })
     }
 
     const order = await prisma.order.update({
@@ -78,8 +58,13 @@ export async function PUT(
         requester,
         location,
         purpose,
-        startDate,
-        userId
+        userId,
+        schedule: {
+          update: {
+            startDate,
+            predictedEndDate,
+          }
+        }
       }
     })
 
