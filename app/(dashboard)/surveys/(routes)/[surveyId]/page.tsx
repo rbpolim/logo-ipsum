@@ -7,13 +7,16 @@ const SurveyPage = async ({
 }: {
   params: { surveyId: string }
 }) => {
+  const orders = await prisma.order.findMany()
+
   const survey = await prisma.survey.findUnique({
     where: {
       id: params.surveyId
+    },
+    include: {
+      participants: true
     }
   })
-
-  const orders = await prisma.order.findMany()
 
   return (
     <div className="flex-col">

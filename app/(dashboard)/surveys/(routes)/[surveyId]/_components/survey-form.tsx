@@ -1,11 +1,11 @@
 "use client"
 
 import axios from 'axios'
-import { Trash } from 'lucide-react'
+import { Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { Order, Survey } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
@@ -34,9 +34,11 @@ import {
 } from '@/components/ui/select'
 
 const formSchema = z.object({
-  name: z.string().trim().min(1),
-  email: z.string().email().optional(),
-  role: z.string().trim().min(1),
+  participants: z.array(z.object({
+    name: z.string().trim().min(1),
+    email: z.string().email().optional(),
+    role: z.string().trim().min(1),
+  })),
   orderId: z.string().trim().min(1),
 })
 
@@ -51,7 +53,7 @@ export function SurveyForm({
   initialData,
   orders
 }: SurveyFormProps) {
-  const params = useParams() as { profileId: string }
+  const params = useParams() as { surveyId: string }
   const router = useRouter()
 
   const [open, setOpen] = useState(false)
@@ -65,19 +67,25 @@ export function SurveyForm({
   const form = useForm<SurveyFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
-      name: '',
-      email: '',
-      role: '',
+      participants: [{ name: '', email: '', role: '' }],
       orderId: '',
     },
+  })
+
+  const fieldArray = useFieldArray({
+    control: form.control,
+    name: 'participants',
   })
 
   const onSubmit = async (data: SurveyFormValues) => {
     try {
       setLoading(true)
-      console.log(data)
 
-      // await axios.put(`/api/profiles/${params.profileId}`, data)
+      if (initialData) {
+        await axios.put(`/api/surveys/${params.surveyId}`, data)
+      } else {
+        await axios.post(`/api/surveys`, data)
+      }
 
       router.refresh();
       router.push(`/surveys`);
@@ -136,7 +144,7 @@ export function SurveyForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full space-y-8'
         >
-          <div className='grid gap-8 md:grid-cols-3'>
+          <div className='grid items-end grid-cols-2 gap-8 place-content-between'>
             <FormField
               control={form.control}
               name="orderId"
@@ -165,46 +173,69 @@ export function SurveyForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Participant name</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder='Name' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Participant email</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder='Email' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Participant role</FormLabel>
-                  <FormControl>
-                    <Input disabled={loading} placeholder='Role' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <Button
+              size="sm"
+              type='button'
+              variant="secondary"
+              onClick={() => fieldArray.append({ name: '', email: '', role: '' })}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add participant
+            </Button>
           </div>
+          {fieldArray.fields.map((item, index) => (
+            <div key={item.id} className='grid col-start-1 gap-8 md:grid-cols-4'>
+              <FormField
+                control={form.control}
+                name={`participants.${index}.name`}
+                render={({ field }) => (
+                  <FormItem className='col-start-1'>
+                    <FormLabel>Participant name</FormLabel>
+                    <FormControl>
+                      <Input disabled={loading} placeholder='Name' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`participants.${index}.email`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Participant email</FormLabel>
+                    <FormControl>
+                      <Input disabled={loading} placeholder='Email' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`participants.${index}.role`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Participant role</FormLabel>
+                    <FormControl>
+                      <Input disabled={loading} placeholder='Role' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type='button'
+                variant="destructive"
+                className='self-end'
+                disabled={loading || fieldArray.fields.length === 1}
+                onClick={() => fieldArray.remove(index)}
+              >
+                <Trash className="w-4 h-4 mr-2" />
+                Remove participant
+              </Button>
+            </div>
+          ))}
           <Button
             disabled={loading}
             type="button"
