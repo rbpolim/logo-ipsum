@@ -14,7 +14,7 @@ export function Header() {
           <Logo />
         </Link>
         <MobileSidebar />
-        <NavRoutes className="mx-10" />
+        <NavRoutes />
         <div className="flex items-center ml-auto space-x-4">
           <UserButton afterSignOutUrl="/" />
           <ModeToggle />
