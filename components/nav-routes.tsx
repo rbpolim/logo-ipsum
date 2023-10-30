@@ -23,6 +23,11 @@ export function NavRoutes({
       active: pathname.startsWith('/orders'),
     },
     {
+      href: `/surveys`,
+      label: 'Surveys',
+      active: pathname.startsWith('/surveys'),
+    },
+    {
       href: `/companies`,
       label: 'Companies',
       active: pathname.startsWith('/companies'),
