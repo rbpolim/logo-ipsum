@@ -50,7 +50,7 @@ export function NavRoutes({
           href={route.href}
           className={cn(
             'text-base font-medium transition-colors hover:text-primary',
-            route.active ? 'text-black dark:text-white' : 'text-muted-foreground'
+            route.active ? 'text-primary' : 'text-muted-foreground'
           )}
         >
           {route.label}

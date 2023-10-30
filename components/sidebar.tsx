@@ -22,6 +22,11 @@ export const Sidebar = () => {
       active: pathname.startsWith('/orders'),
     },
     {
+      href: `/surveys`,
+      label: 'Surveys',
+      active: pathname.startsWith('/surveys'),
+    },
+    {
       href: `/companies`,
       label: 'Companies',
       active: pathname.startsWith('/companies'),
@@ -44,7 +49,7 @@ export const Sidebar = () => {
               href={route.href}
               className={cn(
                 'text-2xl font-medium transition-colors hover:text-primary',
-                route.active ? 'text-black dark:text-white' : 'text-muted-foreground'
+                route.active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
               {route.label}
