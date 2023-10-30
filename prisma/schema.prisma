@@ -36,6 +36,7 @@ model Order {
 
   schedule OrderSchedule?
   reports  Report[]
+  survey   Survey?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,6 +157,36 @@ model ReportGallery {
   @@index([reportId])
 }
 
+model Survey {
+  id     String @id @default(cuid())
+  userId String
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  participants SurveyParticipant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SurveyParticipant {
+  id         String    @id @default(cuid())
+  name       String
+  email      String
+  role       String
+  scores     Json?
+  comment    String?
+  answeredAt DateTime?
+
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([surveyId])
+}
+
 enum PROFILE_ROLE {
   ADMIN
   TECHNICIAN
@@ -165,7 +196,7 @@ enum PROFILE_ROLE {
 
 enum ORDER_STATUS {
   IN_PROGRESS
-  WAITING_APPROVAL_POLL
+  WAITING_SURVEY
   FINISHED
   CANCELED
 }
