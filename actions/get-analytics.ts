@@ -2,13 +2,9 @@ import prisma from "@/lib/prisma";
 
 export async function getAnalytics() {
   try {
-    const orders = await prisma.order.findMany()
-    const reports = await prisma.report.findMany()
-    const companies = await prisma.company.findMany()
-
-    const totalOrders = orders.length
-    const totalReports = reports.length
-    const totalCompanies = companies.length
+    const totalOrders = await prisma.order.count()
+    const totalReports = await prisma.report.count()
+    const totalCompanies = await prisma.company.count()
 
     return {
       totalOrders,
