@@ -2,11 +2,12 @@ import { format } from "date-fns"
 
 import prisma from "@/lib/prisma"
 
-import { OrdersClient } from "../_components/client"
-import { OrderColumn } from "../_components/columns"
 import { addYearPrefixToId } from "@/lib/utils"
 
-export default async function OrdersPage() {
+import { OrdersClient } from "../_components/client"
+import { OrderColumn } from "../_components/columns"
+
+const OrdersPage = async () => {
   const orders = await prisma.order.findMany({
     include: {
       company: true,
@@ -34,3 +35,5 @@ export default async function OrdersPage() {
     </div>
   )
 }
+
+export default OrdersPage
