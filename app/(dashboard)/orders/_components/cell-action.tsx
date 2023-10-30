@@ -18,7 +18,6 @@ import { AlertModal } from "@/components/modals/alert-modal"
 
 import { OrderColumn } from "./columns"
 
-
 type CellActionProps = {
   data: OrderColumn
 }

@@ -20,6 +20,7 @@ const badgeVariants = {
     default: 'default',
     secondary: 'secondary',
     success: 'success',
+    warning: 'warning',
     destructive: 'destructive',
     outline: 'outline',
   },
@@ -30,19 +31,19 @@ type BadgeVariantType = keyof typeof badgeVariants.variant;
 const mappingStatus: Record<string, { label: string, variant: BadgeVariantType }> = {
   "IN_PROGRESS": {
     label: "In progress",
-    variant: 'default'
+    variant: 'secondary'
   },
-  "WAITING_APPROVAL_POLL": {
+  "WAITING_SURVEY": {
+    label: "Waiting survey",
+    variant: "warning"
+  },
+  "FINISHED": {
     label: "Completed",
     variant: "success"
   },
-  "FINISHED": {
+  "CANCELED": {
     label: "Cancelled",
     variant: "destructive"
-  },
-  "CANCELED": {
-    label: "Pending",
-    variant: "secondary"
   },
 }
 
