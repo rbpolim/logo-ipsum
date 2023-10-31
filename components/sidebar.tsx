@@ -48,7 +48,7 @@ export const Sidebar = () => {
               key={route.href}
               href={route.href}
               className={cn(
-                'text-2xl font-medium transition-colors hover:text-primary',
+                'text-xl font-medium transition-colors hover:text-primary',
                 route.active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
