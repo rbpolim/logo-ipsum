@@ -21,13 +21,14 @@ export function CompaniesClient({
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-x-4">
         <Heading
           title={`Companies (${data.length})`}
           description="Manage companies and their units."
         />
         <Button onClick={() => router.push(`/companies/new`)}>
-          <Plus className="mr-2 h-4 w-4" /> Add New
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:flex sm:ml-2">Add New</span>
         </Button>
       </div>
       <Separator />

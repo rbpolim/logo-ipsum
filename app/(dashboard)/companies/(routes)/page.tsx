@@ -1,5 +1,6 @@
-import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
+
+import prisma from '@/lib/prisma'
 
 import { CompaniesClient } from "../_components/client"
 import { CompanyColumn } from '../_components/columns'
