@@ -75,8 +75,6 @@ export function ReportForm({
   const params = useParams() as { reportId: string, orderId: string }
   const router = useRouter()
 
-  console.log(initialData)
-
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -345,8 +343,8 @@ export function ReportForm({
           </div>
           <Separator />
           <div className='grid gap-8 md:grid-cols-2'>
-            <div className='col-start-1'>
-              <FormItem className="flex items-center justify-between">
+            <div className='md:col-start-1'>
+              <FormItem className="flex flex-col md:flex-row">
                 <div>
                   <FormLabel>Service description</FormLabel>
                   <FormDescription>You can add multiple descriptions for this service.</FormDescription>
@@ -354,11 +352,12 @@ export function ReportForm({
                 <Button
                   size="sm"
                   type='button'
-                  variant="ghost"
+                  variant="secondary"
+                  className='md:ml-auto'
                   onClick={() => descriptionFieldArray.append({ description: '' })}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add description
+                  Add new description
                 </Button>
               </FormItem>
               {descriptionFieldArray.fields.map((field, index) => (
@@ -393,8 +392,8 @@ export function ReportForm({
                 </div>
               ))}
             </div>
-            <div className='col-start-2'>
-              <FormItem className="flex items-center justify-between">
+            <div className='md:col-start-2'>
+              <FormItem className="flex flex-col md:flex-row">
                 <div>
                   <FormLabel>Service procedures</FormLabel>
                   <FormDescription>
@@ -404,11 +403,12 @@ export function ReportForm({
                 <Button
                   size="sm"
                   type='button'
-                  variant="ghost"
+                  variant="secondary"
+                  className='md:ml-auto'
                   onClick={() => procedureFieldArray.append({ description: '' })}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add procedure
+                  Add new procedure
                 </Button>
               </FormItem>
               {procedureFieldArray.fields.map((field, index) => (
@@ -497,22 +497,24 @@ export function ReportForm({
           </div>
           <Separator />
           <section className='space-y-4'>
-            <div className='flex items-center justify-between'>
+            <div className='grid gap-2 md:grid-cols-2'>
               <div>
                 <FormLabel>Gallery</FormLabel>
                 <FormDescription>You can add multiple images and comments</FormDescription>
               </div>
               <Button
                 type="button"
+                className='md:ml-auto'
+                variant="secondary"
                 onClick={() => galleryFieldArray.append({ imageUrl: '', comment: '' })}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add image
+                Add new image
               </Button>
             </div>
             <div className='grid gap-8 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4'>
               {galleryFieldArray.fields.map((field, index) => (
-                <div key={field.id} className='p-2 border border-dashed rounded-lg gap-x-2'>
+                <div key={field.id} className='flex flex-col gap-2 p-2 border border-dashed rounded-lg'>
                   <div className='flex justify-between'>
                     <FormField
                       control={form.control}
@@ -531,21 +533,12 @@ export function ReportForm({
                         </FormItem>
                       )}
                     />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant='destructive'
-                      onClick={() => galleryFieldArray.remove(index)}
-                    >
-                      <Trash className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
                   </div>
                   <FormField
                     control={form.control}
                     name={`gallery.${index}.comment`}
                     render={({ field }) => (
-                      <FormItem className="mt-4">
+                      <FormItem>
                         <FormLabel>Comment</FormLabel>
                         <FormControl>
                           <Textarea
@@ -558,11 +551,29 @@ export function ReportForm({
                       </FormItem>
                     )}
                   />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant='destructive'
+                    onClick={() => galleryFieldArray.remove(index)}
+                  >
+                    <Trash className="w-4 h-4 mr-2" />
+                    Remove
+                  </Button>
                 </div>
               ))}
             </div>
           </section>
-          <Button type="submit" className='ml-auto' disabled={loading}>
+          <Separator />
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            className='ml-auto mr-4'
+            onClick={() => router.back()}
+          >
+            Cancel
+          </Button>          <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
         </form>

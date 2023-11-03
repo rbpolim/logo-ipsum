@@ -144,7 +144,7 @@ export function SurveyForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full space-y-8'
         >
-          <div className='grid items-end grid-cols-2 gap-8 place-content-between'>
+          <div className='grid gap-8 md:grid-cols-5'>
             <FormField
               control={form.control}
               name="orderId"
@@ -173,18 +173,18 @@ export function SurveyForm({
                 </FormItem>
               )}
             />
-            <Button
-              size="sm"
-              type='button'
-              variant="secondary"
-              onClick={() => fieldArray.append({ name: '', email: '', role: '' })}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add participant
-            </Button>
           </div>
+          <Button
+            size="sm"
+            type='button'
+            variant="secondary"
+            onClick={() => fieldArray.append({ name: '', email: '', role: '' })}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add new participant
+          </Button>
           {fieldArray.fields.map((item, index) => (
-            <div key={item.id} className='grid col-start-1 gap-8 md:grid-cols-4'>
+            <div key={item.id} className='grid gap-8 p-3 border border-dotted rounded-md bg-neutral-100 sm:grid-cols-[1fr_1fr_1fr_50px] 2xl:grid-cols-6 drop-shadow-sm'>
               <FormField
                 control={form.control}
                 name={`participants.${index}.name`}
@@ -227,12 +227,13 @@ export function SurveyForm({
               <Button
                 type='button'
                 variant="destructive"
+                size="icon"
                 className='self-end'
                 disabled={loading || fieldArray.fields.length === 1}
                 onClick={() => fieldArray.remove(index)}
               >
-                <Trash className="w-4 h-4 mr-2" />
-                Remove participant
+                <Trash className="w-4 h-4" />
+                {/* Remove participant */}
               </Button>
             </div>
           ))}
