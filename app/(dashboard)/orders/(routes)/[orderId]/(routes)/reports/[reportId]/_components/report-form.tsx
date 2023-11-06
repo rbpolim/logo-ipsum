@@ -440,9 +440,12 @@ export function ReportForm({
                                 <SelectValue placeholder="Select a procedure" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>
+                            <SelectContent position="item-aligned">
                               {optionsProcedures.map((procedure) => (
-                                <SelectItem key={procedure.code} value={procedure.description}>
+                                <SelectItem
+                                  key={procedure.code}
+                                  value={procedure.description}
+                                >
                                   {procedure.description}
                                 </SelectItem>
                               ))}
