@@ -3,7 +3,7 @@
 import axios from 'axios'
 import { CalendarIcon, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { Report } from '@prisma/client'
+import { Report, ReportProcedure } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -12,6 +12,8 @@ import { z } from 'zod'
 import { format } from 'date-fns'
 
 import { cn } from '@/lib/utils'
+
+import { optionsProcedures } from '@/constants/report-procedures'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -31,6 +33,7 @@ import {
   FormMessage
 } from '@/components/ui/form'
 import ImageUpload from '@/components/image-upload'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const formSchema = z.object({
   schedule: z.object({
@@ -66,7 +69,9 @@ const formSchema = z.object({
 type ReportFormValues = z.infer<typeof formSchema>
 
 type ReportFormProps = {
-  initialData: Report | null
+  initialData: Report & {
+    procedures: ReportProcedure[]
+  } | null
 }
 
 export function ReportForm({
@@ -110,6 +115,8 @@ export function ReportForm({
       gallery: []
     },
   })
+
+  console.log(initialData)
 
   const galleryFieldArray = useFieldArray({
     control: form.control,
@@ -193,7 +200,7 @@ export function ReportForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className='w-full space-y-8'
         >
-          <div className='grid gap-8 md:grid-cols-5'>
+          <section className='grid gap-8 md:grid-cols-5'>
             <FormField
               control={form.control}
               name="schedule.date"
@@ -246,9 +253,9 @@ export function ReportForm({
                 </FormItem>
               )}
             />
-          </div>
+          </section>
           <Separator />
-          <div className='grid gap-8 md:grid-cols-4'>
+          <section className='grid gap-8 md:grid-cols-4'>
             <FormField
               control={form.control}
               name="equipment.name"
@@ -340,9 +347,9 @@ export function ReportForm({
                 </FormItem>
               )}
             />
-          </div>
+          </section>
           <Separator />
-          <div className='grid gap-8 md:grid-cols-2'>
+          <section className='grid gap-8 md:grid-cols-2'>
             <div className='md:col-start-1'>
               <FormItem className="flex flex-col md:flex-row">
                 <div>
@@ -366,25 +373,25 @@ export function ReportForm({
                     control={form.control}
                     name={`descriptions.${index}.description`}
                     render={({ field }) => (
-                      <div className='flex flex-col w-full'>
-                        <FormControl>
-                          <Input
-                            disabled={loading}
-                            placeholder='Service description'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                      <div className='flex items-start gap-x-2'>
+                        <div className='w-full space-y-2'>
+                          <FormControl>
+                            <Input
+                              disabled={loading}
+                              placeholder='Service description'
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
                         <Button
                           size="sm"
                           type='button'
                           variant="destructive"
-                          className='mt-1 ml-auto'
                           disabled={loading || descriptionFieldArray.fields.length === 1}
                           onClick={() => descriptionFieldArray.remove(index)}
                         >
-                          <Trash className="w-4 h-4 mr-2" />
-                          Remove description
+                          <Trash className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
@@ -417,25 +424,42 @@ export function ReportForm({
                     control={form.control}
                     name={`procedures.${index}.description`}
                     render={({ field }) => (
-                      <div className='flex flex-col w-full'>
-                        <FormControl>
-                          <Input
+                      <div className='flex items-start gap-x-2'>
+                        <FormItem className='w-full space-y-2'>
+                          <Select
                             disabled={loading}
-                            placeholder='Service procedure'
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                            onValueChange={field.onChange}
+                            defaultValue={
+                              initialData
+                                ? initialData.procedures[index]?.description
+                                : undefined
+                            }
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a procedure" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {optionsProcedures.map((procedure) => (
+                                <SelectItem key={procedure.code} value={procedure.description}>
+                                  {procedure.description}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+
+                        </FormItem>
                         <Button
-                          size="sm"
+                          size="icon"
                           type='button'
                           variant="destructive"
-                          className='mt-1 ml-auto'
+                          className=''
                           disabled={loading || procedureFieldArray.fields.length === 1}
                           onClick={() => procedureFieldArray.remove(index)}
                         >
-                          <Trash className="w-4 h-4 mr-2" />
-                          Remove procedure
+                          <Trash className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
@@ -494,7 +518,7 @@ export function ReportForm({
                 </FormItem>
               )}
             />
-          </div>
+          </section>
           <Separator />
           <section className='space-y-4'>
             <div className='grid gap-2 md:grid-cols-2'>
@@ -573,7 +597,8 @@ export function ReportForm({
             onClick={() => router.back()}
           >
             Cancel
-          </Button>          <Button type="submit" className='ml-auto' disabled={loading}>
+          </Button>
+          <Button type="submit" className='ml-auto' disabled={loading}>
             {action}
           </Button>
         </form>
