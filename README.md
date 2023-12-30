@@ -1,6 +1,6 @@
 # Logo Ipsum
 
-Supply Marine Service Management represents a web application specifically crafted to streamline order management for the company, Supply Marine. This application empowers users to efficiently handle service orders, craft comprehensive work reports, and dispatch customer satisfaction surveys.
+SaaS application specifically crafted to streamline order management for the company, Supply Marine. This application empowers users to efficiently handle service orders, craft comprehensive work reports, and dispatch customer satisfaction surveys.
 
 ## Environment Variables
 
