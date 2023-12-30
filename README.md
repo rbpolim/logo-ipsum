@@ -1,4 +1,4 @@
-![Slide 4_3 - 2](https://github.com/rbpolim/logo-ipsum/assets/66570560/f63f6f49-f667-4d98-8ed5-63d68ef39c6e)
+![Slide 4_3 - 2 (1)](https://github.com/rbpolim/logo-ipsum/assets/66570560/eb17c34c-4d46-4442-a962-b8cf20b075ad)
 
 # Logo Ipsum
 
