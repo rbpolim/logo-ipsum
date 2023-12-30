@@ -1,14 +1,35 @@
-### Todo List
+# Logo Ipsum
 
-[ ] - Study about rechart lib (https://www.npmjs.com/package/recharts)
+Supply Marine Service Management represents a web application specifically crafted to streamline order management for the company, Supply Marine. This application empowers users to efficiently handle service orders, craft comprehensive work reports, and dispatch customer satisfaction surveys.
 
-[ ] - set styles like company page
-  [ ] - add gap-x heading / button (+ new)
-  [ ] - add span into button hidden/sm:flex
+## Environment Variables
 
-[ ] - verify and delete structure store-modal (i don't know if im using this logic)
- 
-[ ] - it should delete a user?  
-[ ] - create a footer component?  
+To run this project, you will need to add the following environment variables to your .env file
 
-[ ] - BUG: error when open modal, not working the page (study because i don't have idea how to fix it)
+`.env.example`
+
+## Features
+
+- Light/dark mode toggle
+- Service order management system and daily report generation
+- Development of APIs for REST architecture and MySQL to maximize performance and scalability
+- Image uploads
+- PDF report generation
+- Sending satisfaction survey e-mails
+- Advanced form development & validations
+- Input masks;
+
+## Tech Stack
+
+- Next.js
+- TypeScript
+- TailwindCSS
+- React Hook Form
+- Shadcn/ui
+- Zod
+- Zustand
+- Axios
+- Planetscale
+- Cloudinary
+- Clerk
+- Sendgrid
