@@ -1,3 +1,5 @@
+![Slide 4_3 - 2](https://github.com/rbpolim/logo-ipsum/assets/66570560/f63f6f49-f667-4d98-8ed5-63d68ef39c6e)
+
 # Logo Ipsum
 
 SaaS application to empowers users to efficiently handle service orders, craft comprehensive work reports, and dispatch customer satisfaction surveys.
