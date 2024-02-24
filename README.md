@@ -35,3 +35,4 @@ To run this project, you will need to add the following environment variables to
 - Cloudinary
 - Clerk
 - Sendgrid
+- Docker & Docker Compose
