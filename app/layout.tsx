@@ -11,8 +11,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Supply Marine',
-  description: 'Manage your marine Supply Marine',
+  title: 'Logo Ipsum',
+  description: 'Manage your service orders with ease.',
 }
 
 export default function RootLayout({
